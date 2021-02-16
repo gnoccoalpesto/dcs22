@@ -13,7 +13,7 @@ subj: 	sum{1,N} Hizi=b
 	zi € Pi, i€{1...N}
 
 ci € R^ni, Hi € R^Sxni, b € R^S
-compact polyhedron Pi={zi € R^ni | Dizi=<di, Gizi=gi} i€{1...N}
+compact polyhedron Pi={zi € R^ni | Dizi=<di, Gizi=gi } i€{1...N}
 
 using Distributed Dual Subgradient:
 
