@@ -1,0 +1,90 @@
+%
+% Template for DCS course projects
+%
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb,amsmath,color}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{float}
+
+\begin{document}
+\pagestyle{myheadings}
+
+%%%%%%%%%%% Cover %%%%%%%%%%%
+\thispagestyle{empty}                                                 
+\begin{center}                                                            
+    \vspace{5mm}
+    {\LARGE UNIVERSIT\`A DI BOLOGNA} \\                       
+      \vspace{5mm}
+\end{center}
+\begin{center}
+  \includegraphics[scale=.27]{figs/logo_unibo}
+\end{center}
+\begin{center}
+      \vspace{5mm}
+      {\LARGE School of Engineering} \\
+        \vspace{3mm}
+      {\Large Master Degree in Automation Engineering} \\
+      \vspace{20mm}
+      {\LARGE Distributed Control Systems} \\
+      \vspace{5mm}{\Large\textbf{TITLE}}                  
+      \vspace{15mm}
+\end{center}
+\begin{flushleft}                                                                              
+     {\large Professor: \textbf{\@ Giuseppe Notarstefano}} \\        
+      \vspace{13mm}
+\end{flushleft}
+\begin{flushright}
+      {\large Students:}\\
+\end{flushright}        %capoverso allineato a destra
+\begin{center}
+\vfill
+      {\large Academic year \@2020/2021} \\
+\end{center}
+
+
+
+\newpage
+\thispagestyle{empty}
+
+%%%%%%%%%%% Abstract %%%%%%%%%%%%
+\begin{center}
+\chapter*{}
+\thispagestyle{empty}
+{\Huge \textbf{Abstract}}\\
+\vspace{15mm}
+\end{center}
+
+\tableofcontents \thispagestyle{empty}
+% \listoffigures\thispagestyle{empty}
+
+%%%%%%%%%% Introduction %%%%%%%%%%
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+\section*{Motivations} 
+
+\section*{Contributions}
+
+
+
+%%%%%%%%%% Chapter Title %%%%%%%%%%
+\chapter{Chapter Title}
+
+
+%%%%%%%%%% Conclusions %%%%%%%%%%
+\chapter*{Conclusions}
+\addcontentsline{toc}{chapter}{Conclusions} 
+
+%%%%%%%%%% Bibliography %%%%%%%%%%%
+\bibliography{bibfile}{}
+\bibliographystyle{plain}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
