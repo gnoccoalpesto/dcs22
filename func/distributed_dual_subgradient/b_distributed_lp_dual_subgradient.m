@@ -9,6 +9,8 @@
 %
 clear all; clc; close all;
 rng(1)
+
+% AGENTS DEFINITION
 NN = 5;
 
 % min{z1...zN} sum{1,N}(ci'*zi)
@@ -17,15 +19,14 @@ NN = 5;
 
 % Hi*zi-bi==gi(zi)
 
-% weights ci
+% WEIGHTS ci
 a = -1;   b = -10;
 cc_LP = zeros(NN,1);
 for ii = 1:NN
   cc_LP(ii) = (b-a)*rand(1 ,1) + a; % entries unif. in [a,b]
 end
 
-
-% Pi definition
+% POLYHEDRON DEFINITION Pi
 % Local Box Constraint X_i
 LB = zeros(NN,1);
 UB = zeros(NN,1);
@@ -37,7 +38,7 @@ for ii=1:NN
   UB(ii) = (d-c)*rand(1) + c; % upper bound in [c, d]
 end
 
-% Linear Coupling Constraint
+% LINEAR COUPLING CONSTRAINT
 AA_LP = ones(1,NN); % Hi
 bb_LP = zeros(NN,1); % b
 
@@ -50,7 +51,7 @@ end
 bb_centr = sum(bb_LP);
 
 %%
-% Centralized Solution
+% CENTRALIZED SOLUTION
 options = optimoptions('linprog','Display','none');
 [~, fopt, exit_flag] = linprog(cc_LP,AA_LP,bb_centr,[],[],LB,UB,options);
 
@@ -63,15 +64,17 @@ fprintf('Centralized optimal cost is %.4g\n',fopt);
 
 
 %%
-% weighted adjacency matrix for averaging mechanism
+% WEIGHTED ADJACENCY MATRIX
+% for averaging mechanism
 p = 0.1;
 [AA_NW, AA] = binomialGraph(1, NN, 'doubly');
+
 %%
 
 MAXITERS = 5e4;
 
 XX = zeros(NN,MAXITERS);
-XX_RA = zeros(NN,MAXITERS);
+XX_RA = zeros(NN,MAXITERS);%running average
 
 MU = zeros(NN,MAXITERS);
 VV = zeros(NN,1);
@@ -109,6 +112,7 @@ for tt = 1:MAXITERS-1
 %   for ii=1:NN
 %      XX(ii,tt) = linprog(cc_LP(ii)+VV(ii)*AA_LP(ii),[],[],[],[],LB(ii),UB(ii),options);
 %   end
+
   for ii=1:NN
     if cc_LP(ii)+VV(ii)*AA_LP(ii)>=0
         XX(ii,tt) = LB(ii);
@@ -130,6 +134,7 @@ for tt = 1:MAXITERS-1
   
   % mui^t+1=max{0, vi^t+1 + alfa^t *(Hi*zi^t+1 -bi) }
   % mu^{t+1} = mu^t + gamma^t* ( sum_i grad_q_i(mu^t) )
+
   for ii=1:NN
     grad_ii = XX(ii,tt)-bb_LP(ii);
 
