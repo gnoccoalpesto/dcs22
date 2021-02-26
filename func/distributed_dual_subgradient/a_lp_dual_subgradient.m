@@ -17,7 +17,8 @@ for ii = 1:NN
   cc_LP(ii) = (b-a)*rand(1 ,1) + a; % entries unif. in [a,b]
 end
 
-
+%declare Di and Gi here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Local Box Constraint X_i
 LB = zeros(NN,1);
 UB = zeros(NN,1);
