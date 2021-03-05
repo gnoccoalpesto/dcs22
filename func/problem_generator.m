@@ -6,12 +6,15 @@ M = 4; % SIZE OF AGENTS' LOCAL OPTIM. VAR. ATTENTION! IT MUST STAND M>N
 %%% MODEL A
 % % profit associated with assigning job j to machine i
 P_ = randi([10 25],N,M);
-tt = max(max(P_))+1;
+tt = max(P_,[],'all')+1;
 P  = tt - P_;
+
 % claim on the capacity of machine i by job j
-W = randi([5 25],N,M); 
+W = randi([5 25],N,M);
 C = zeros(N,1);
-for ijk = 1:N
+
+for ijk = 1:N 
+    ijk
     J_i = [];
     for jjj = 1:M
       p_j = P(:,jjj);
@@ -30,13 +33,14 @@ for ijk = 1:N
             end
         end
     end
-    C(ijk) = 9*(M/N) + 0.4*max(c_v);
+    C(ijk) = 9*(M/N) + 0.4*max(c_v); 
 end
 
 
 
-A_eq = repmat(eye(M,M), [1,N]);
-b_eq = ones(M,1);
+A_eq = repmat(eye(M,M), [1,N]); % == [...Hj...]
+b_eq = ones(M,1); % == b
+
 % machine capacity, local constraints
 A = zeros(N,M*N);
 for i = 1:N
@@ -44,11 +48,13 @@ for i = 1:N
 end
 b = C;
 
-% maximize profit
+%maximize profit
 c = reshape(P',[1,M*N]);
 LB = zeros((N*M),1);
 UB = ones((N*M),1);
 
 [xopt, fopt] = linprog(c,A,b,A_eq,b_eq,LB,UB)
+
+% min{x} f' x | Ax=<b & Aeq x = beq & lb=<x=<ub
 
 %clearvars -except c A b A_eq b_eq LB UB xopt fopt
