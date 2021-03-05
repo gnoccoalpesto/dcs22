@@ -54,8 +54,8 @@ c = reshape(P',[1,M*N]);% c=[...cj...]
 LB = zeros((N*M),1);
 UB = ones((N*M),1);
 
-[zopt, fopt] = linprog(c,D,d,H,b,LB,UB)
+[xopt, fopt] = linprog(c,D,d,H,b_eq,LB,UB)
 
-% min{x} c'*z | A*z=<b & Aeq*z = beq & lb=<z=<ub
+% min{x} f' x | Ax=<b & Aeq x = beq & lb=<x=<ub
 
-clearvars -except c D d H b LB UB zopt fopt
+%clearvars -except c A b A_eq b_eq LB UB xopt fopt
