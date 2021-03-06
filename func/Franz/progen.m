@@ -1,9 +1,27 @@
-
+function progenres=progen(N,M)
+    % N agents
+    % ci € R^ni
+    % Hi € R^S x ni
+    % b € R^S
+    % Pi = {zi € R^ni | Di*zi=<di, Gi*zi=gi}
+    % Di € R^ ni x ni, di € R^ni
+    % Gi € R^ ni x ni, gi € R^ni
+    % qui:
+    % ci € R^M, c € R^M*N
+    % Hi € R^M x M , H € R^M x M*N
+    % b € R^M
+    % Pi | Gi=0, Di € R^N x N*M
+    % -->
+    % ni=M
+    % S=M
+    % ma da Gi -> ni=N ... errore?
+    % 
 	%clear all; close all; clc;
-	N = 3; % NUMBER OF AGENTS 
-	M = 4; % SIZE OF AGENTS' LOCAL OPTIM. VAR. ATTENTION! IT MUST STAND M>N
-
-	%%% MODEL A
+	%N: NUMBER OF AGENTS 
+	%M: SIZE OF AGENTS' LOCAL OPTIM. VAR. 
+    % ATTENTION! IT MUST STAND M>N
+	if not(M>N),error('mandatory: M>N, N first value'),end
+    
 	% % profit associated with assigning job j to machine i
 	P_ = randi([10 25],N,M);
 	P  = max(P_,[],'all') +1 - P_ ;
@@ -32,10 +50,10 @@
 		end
 	    end
 	    d(ijk) = 9*(M/N) + 0.4*max(c_v); 
-	end
-
-	H = repmat(eye(M,M), [1,N]); % == [...Hj...]
-	b = ones(M,1); 
+    end
+    
+	b = ones(M,1);
+	H = repmat(eye(M,M), [1,N]); % == [...Hj...] 
 	% nota: la "separazione" della b sui vari agenti è arbitraria:
 	% - tutta ad uno
 	% - media a ciascuno
@@ -56,3 +74,8 @@
 	% min{x} c'*z | A*z=<b & Aeq*z = beq & lb=<z=<ub
 
 	clearvars -except c D d H b LB UB zopt fopt
+       
+    progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
+    progenres.H=H;progenres.LB=LB;progenres.UB=UB;
+
+end
