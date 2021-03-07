@@ -76,14 +76,14 @@ for tt = 1:MAXITERS-1
 %   
   % Dual Update
   % mu^{t+1} = mu^t + gamma^t* ( sum_i grad_q_i(mu^t) )
-   alpha_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
+   gamma_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
 
   
   alfa(tt+1) = alfa(tt);
   for ii=1:NN
     grad_ii = ZZ(ii,tt)-b(ii);
     
-    alfa(tt+1) = alfa(tt+1) + alpha_t*grad_ii;
+    alfa(tt+1) = alfa(tt+1) + gamma_t*grad_ii;
   end
 	alfa(tt+1) = max(0,alfa(tt+1));
   
