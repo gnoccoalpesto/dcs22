@@ -1,6 +1,6 @@
 clear all;close all;clc
 rng(1)
-NN = 5;
+NN = 3;
 
 % min{z1...zN} sum{1,N}(ci'*zi)
 % subj: 	sum{1,N} (Hi*zi)=b == sum{1,N}(Hi*zi-bi)=0
@@ -10,27 +10,28 @@ NN = 5;
 
 progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
 progenres.H=H;progenres.LB=LB;progenres.UB=UB;
+%we still need to implement the Pi containing the limits on Dizi<=di
 
 
 
 %%
-% Centralized Solution
-
-% centralized (parallel) dual subgradient:
-% zi^t+1= argmin{zi € Pi}(ci'*zi +(mu^t)'*(Hi*zi-bi)
-%       = argmin{zi € Pi}( ci'+(mu^t)'*Hi)*zi -(mu^t)'*bi)
-% mu^t+1 = max {0, mu^t+alfa^t *sum{1,N}(Hi*zi^t+1 -bi) }
-
-
-options = optimoptions('linprog','Display','none');
-[~, fopt, exit_flag] = linprog(c,H,bb_centr,[],[],LB,UB,options);
-
-if exit_flag ~= 1
-  fprintf(2,'A problem occurred in the centralized solution\n');
-  return;
-end
-
-fprintf('Centralized optimal cost is %.4g\n',fopt);
+% % Centralized Solution
+% 
+% % centralized (parallel) dual subgradient:
+% % zi^t+1= argmin{zi € Pi}(ci'*zi +(mu^t)'*(Hi*zi-bi)
+% %       = argmin{zi € Pi}( ci'+(mu^t)'*Hi)*zi -(mu^t)'*bi)
+% % mu^t+1 = max {0, mu^t+alfa^t *sum{1,N}(Hi*zi^t+1 -bi) }
+% 
+% 
+% options = optimoptions('linprog','Display','none');
+% [~, fopt, exit_flag] = linprog(c,H,bb_centr,[],[],LB,UB,options);
+% 
+% if exit_flag ~= 1
+%   fprintf(2,'A problem occurred in the centralized solution\n');
+%   return;
+% end
+% 
+% fprintf('Centralized optimal cost is %.4g\n',fopt);
 
 %%Primal problem
 
@@ -39,7 +40,7 @@ MAXITERS = 5e4;
 ZZ = zeros(NN,MAXITERS); 
 ZZ_RA = zeros(NN,MAXITERS);
 
-alfa = zeros(MAXITERS,1);
+LA = zeros(MAXITERS,1);
 
 primal_cost = zeros(MAXITERS,1);
 dual_cost   = zeros(MAXITERS,1);
@@ -53,12 +54,12 @@ for tt = 1:MAXITERS-1
   if mod(tt,100)==0
       fprintf('Iteration n. %d\n',tt);
   end
-  % Primal Update
-%   for ii=1:NN
-%      XX(ii,tt) = linprog(cc_LP(ii)+MU(tt)*AA_LP(ii),[],[],[],[],LB(ii),UB(ii),options);
-%   end
+  Primal Update
   for ii=1:NN
-    if c(ii)+alfa(tt)*H(ii)>=0
+     ZZ(ii,tt) = linprog(c(ii)+alpha(tt)*H(ii),[],[],[],[],LB(ii),UB(ii),options); %H needs to be defined (we can use the Id)
+  end
+  for ii=1:NN
+    if c(ii)+LA(tt)*H(ii)>=0
         ZZ(ii,tt) = LB(ii);
     else
         ZZ(ii,tt) = UB(ii);
@@ -70,36 +71,35 @@ for tt = 1:MAXITERS-1
       if tt==1
           ZZ_RA(ii,tt) = ZZ(ii,tt);
       else
-          ZZ_RA(ii,tt) = (1/tt)*((tt-1)*ZZ_RA(ii,tt-1)+ZZ(ii,tt));
+          ZZ_RA(ii,tt) = (1/tt)*((tt-1)*ZZ_RA(ii,tt-1)+ZZ(ii,tt)); %running average definition
       end
   end
 %   
   % Dual Update
   % mu^{t+1} = mu^t + gamma^t* ( sum_i grad_q_i(mu^t) )
-   gamma_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
+   alpha_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
 
   
-  alfa(tt+1) = alfa(tt);
+  LA(tt+1) = LA(tt);
   for ii=1:NN
     grad_ii = ZZ(ii,tt)-b(ii);
     
-    alfa(tt+1) = alfa(tt+1) + gamma_t*grad_ii;
+    LA(tt+1) = LA(tt+1) + alpha_t*grad_ii;
   end
-	alfa(tt+1) = max(0,alfa(tt+1));
   
   % Performance check
 
   for ii=1:NN
-    ff_ii = c(ii)*ZZ(ii,tt);
-    primal_cost(tt) = primal_cost(tt) + ff_ii;
+    ff_ii = c(ii)'*ZZ(ii,tt); %c' is a row vector of 4, ZZi is a column vector of 4=ni=M
+    primal_cost(tt) = primal_cost(tt) + ff_ii; %this is the summation from 1 to N=3
     
-    ff_ii = c(ii)*ZZ_RA(ii,tt);
-    primal_cost_RA(tt) = primal_cost_RA(tt) + ff_ii;
+    ff_ii = c(ii)'*ZZ_RA(ii,tt);
+    primal_cost_RA(tt) = primal_cost_RA(tt) + ff_ii; %primal cost with running average
     
-    qq_ii = c(ii)*ZZ(ii,tt) + alfa(tt)*(ZZ(ii,tt)-b(ii));
-    dual_cost(tt) = dual_cost(tt) + qq_ii;
+    qq_ii = c(ii)'*ZZ(ii,tt) + LA(tt)*(ZZ(ii,tt)-b(ii)); %H here is considered as identity should we put H as a variable nonetheless?
+    dual_cost(tt) = dual_cost(tt) + qq_ii; %we consider S dimension of eq constraints to be the same as ni=M=4
     
-    qq_ii = c(ii)*ZZ_RA(ii,tt) + alfa(tt)*(ZZ_RA(ii,tt)-b(ii));
+    qq_ii = c(ii)'*ZZ_RA(ii,tt) + LA(tt)*(ZZ_RA(ii,tt)-b(ii));
     dual_cost_RA(tt) = dual_cost_RA(tt) + qq_ii;
   end
 end
@@ -108,18 +108,18 @@ end
 tt = MAXITERS;
 fprintf('Iteration n. %d\n',tt);
 for ii=1:NN   
-    ZZ(ii,tt) = linprog(c(ii)+alfa(tt)*H(ii),[],[],[],[],LB(ii),UB(ii),options);
+    ZZ(ii,tt) = linprog(c(ii)+LA(tt)*H(ii),[],[],[],[],LB(ii),UB(ii),options);
     ZZ_RA(ii,tt) = (1/tt)*((tt-1)*ZZ_RA(ii,tt-1)+ZZ(ii,tt));
-    ff_ii = c(ii)*ZZ(ii,tt);
+    ff_ii = c(ii)'*ZZ(ii,tt);
     primal_cost(tt) = primal_cost(tt) + ff_ii;
     
-    ff_ii = c(ii)*ZZ_RA(ii,tt);
+    ff_ii = c(ii)'*ZZ_RA(ii,tt);
     primal_cost_RA(tt) = primal_cost_RA(tt) + ff_ii;
     
-    qq_ii = c(ii)*ZZ(ii,tt) + alfa(tt)*(ZZ(ii,tt)-b(ii));
+    qq_ii = c(ii)'*ZZ(ii,tt) + LA(tt)*(ZZ(ii,tt)-b(ii));
     dual_cost(tt) = dual_cost(tt) + qq_ii;
     
-    qq_ii = c(ii)*ZZ_RA(ii,tt) + alfa(tt)*(ZZ_RA(ii,tt)-b(ii));
+    qq_ii = c(ii)'*ZZ_RA(ii,tt) + LA(tt)*(ZZ_RA(ii,tt)-b(ii));
     dual_cost_RA(tt) = dual_cost_RA(tt) + qq_ii;
 end
 
@@ -135,7 +135,7 @@ figure
   
 %%
 figure
-  plot(1:MAXITERS,alfa, 'LineWidth',2);
+  plot(1:MAXITERS,LA, 'LineWidth',2);
   hold on, grid on, zoom on
   xlabel('t')
   ylabel('\mu_i^t')
@@ -168,6 +168,15 @@ ylabel('q(\mu)')
 
 
 %% comments
+%this is to implement an inequality constraint
+% MU(tt+1) = MU(tt);
+%   for ii=1:NN
+%     grad_ii = ZZ(ii,tt)-b(ii);
+%     
+%     MU(tt+1) = MU(tt+1) + alpha_t*grad_ii;
+%   end
+% 	MU(tt+1) = max(0,MU(tt+1)); %projection
+
 % xi^t (blue one) oscillates, not converging
 % running avarage converges 
 %       XX_RA(ii,tt) = (1/tt)*((tt-1)*XX_RA(ii,tt-1)+XX(ii,tt))
