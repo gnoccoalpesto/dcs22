@@ -8,8 +8,8 @@ M=4;
 
 % Hi*zi-bi==gi(zi)
 
-progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
-progenres.H=H;progenres.LB=LB;progenres.UB=UB;
+b=progenres.b; c=progenres.c; d=progenres.d; D=progenres.D;
+H=progenres.H; LB=progenres.LB; UB=progenres.UB;
 %we still need to implement the Pi containing the limits on Dizi<=di
 
 
