@@ -37,17 +37,17 @@ function progenres=progen(N,M)
 	      [~, ind_m] = min(p_j);
 	      ind_ = find(ind_m == ijk);
 	      if ~isempty(ind_)
-		J_i = [J_i jjj];
+            J_i = [J_i jjj];
 	      end
 	    end
 	    c_v = zeros(N,1);
 	    if ~isempty(J_i)
-		for lll = 1:N
-		    w_l = W(lll,:);
-		    for jkl=1:numel(J_i)
-		        c_v(lll)=c_v(lll)+w_l(J_i(jkl));
-		    end
-		end
+            for lll = 1:N
+                w_l = W(lll,:);
+                for jkl=1:numel(J_i)
+                    c_v(lll)=c_v(lll)+w_l(J_i(jkl));
+                end
+            end
 	    end
 	    d(ijk) = 9*(M/N) + 0.4*max(c_v); 
     end
