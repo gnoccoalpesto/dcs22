@@ -15,8 +15,8 @@ function [returnVector] =spawnEntities (number2spawn,spawnAreaDim,shapeType)
     % checks if shape is specified
     if nargin<3
         % defaut shape: square
-        returnVector=randVector.*spawnAreaDim;%-spawnAreaDim/2;
-        % remove comment of previous line to move rectangles center to origin
+        returnVector=randVector.*spawnAreaDim;
+        % add: move the space such that its center its origin
     elseif shapeType=="circular"
         returnVector=randVector.*[spawnAreaDim/2,2*pi];
         returnVector=[returnVector(:,1).*cos(returnVector(:,2)),...
