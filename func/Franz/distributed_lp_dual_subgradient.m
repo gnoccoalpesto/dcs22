@@ -7,16 +7,6 @@
 % POLYHEDRON DEFINITION Pi
 %       zi € Pi, i€{1...N}
 
-%%
-% CENTRALIZED SOLUTION
-%options = optimoptions('linprog','Display','none');
-%[~, fopt, exit_flag] = linprog(cc_LP,AA_LP,bb_centr,[],[],LB,UB,options);
-
-%if exit_flag ~= 1
-%   error(2,'A problem occurred in the centralized solution\n');
-%   return;
-%end
-%fprintf('Centralized optimal cost is %.4g\n',fopt);
 
 % WEIGHTED ADJACENCY MATRIX
 %p = 0.1;[AA_NW, AA] = binomialGraph(1, NN, 'doubly');
@@ -39,8 +29,7 @@
 %consensus_err = zeros(MAXITERS,1);
 
 %for tt = 1:MAXITERS-1
-  %if mod(tt,100)==0,fprintf('Iteration n. %d\n',tt),end
-  
+   
   %gamma_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
 
   %for ii=1:NN
@@ -85,7 +74,7 @@
   
   % Dual Update
   
-  % mui^t+1=max{0, vi^t+1 + alfa^t *(Hi*zi^t+1 -bi) }
+  % mu^t+1=max{0, vi^t+1 + alfa^t *(Hi*zi^t+1 -bi) }
   % mu^{t+1} = mu^t + gamma^t* ( sum_i grad_q_i(mu^t) )
 
 %   for ii=1:NN

@@ -11,7 +11,7 @@ clear all; clc; close all;
 rng(1)
 
 % AGENTS DEFINITION
-NN = 5;
+NN = 50;
 
 % min{z1...zN} sum{1,N}(ci'*zi)
 % subj: 	sum{1,N} (Hi*zi)=b == sum{1,N}(Hi*zi-bi)=0
@@ -67,7 +67,7 @@ fprintf('Centralized optimal cost is %.4g\n',fopt);
 % WEIGHTED ADJACENCY MATRIX
 % for averaging mechanism
 p = 0.1;
-[AA_NW, AA] = binomialGraph(1, NN, 'doubly');
+[AA_NW, AA] = binomialGraph(p, NN, 'doubly');
 
 %%
 
@@ -87,9 +87,9 @@ dual_cost_RA   = zeros(MAXITERS,1);
 consensus_err = zeros(MAXITERS,1);
 
 for tt = 1:MAXITERS-1
-  if mod(tt,100)==0
-      fprintf('Iteration n. %d\n',tt);
-  end
+%   if mod(tt,100)==0
+%       fprintf('Iteration n. %d\n',tt);
+%   end
   
   gamma_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
 

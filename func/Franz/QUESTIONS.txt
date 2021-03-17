@@ -1,0 +1,6 @@
+
+-2- evitare di usare la matrice non pesata e di aggiungere a parte il self loop (non presente nella ANW)
+
+-3- cosa usare in questo caso,in assenza di lower bound?
+
+-4-
