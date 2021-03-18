@@ -33,12 +33,12 @@ disp('solving with dual subgradient method...')
 disp('centralized solution');
 
 options = optimoptions('linprog','Display','none');
-[~, fopt, exit_flag] = linprog(c,H,b,[],[],LB,UB,options);
+[~, fopt, exit_flag] = linprog(c,[],[],H,b,LB,UB,options);
 
-if exit_flag ~= 1
-  fprintf(2,'A problem occurred in the centralized solution\n');
-  return;
-end
+% % if exit_flag ~= 1
+% %   fprintf(2,'A problem occurred in the centralized solution\n');
+% %   return;
+% % end
 
 fprintf('Centralized optimal cost is %.4g\n',fopt);
 
