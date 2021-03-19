@@ -3,7 +3,7 @@ function...
                            dualsub(NN,AA,bb,cc,dd,DD,HH,LBB,UBB)
 % dd,DD,LBB unused
     MAXITERS = 5e3;
-    fprintf('number of iteractions %d\n',MAXITERS);
+    fprintf('progress %d%\n',MAXITERS);
 
     disp('initializing...');
     primCost=zeros(MAXITERS,1);
@@ -20,10 +20,10 @@ function...
     vv=zeros(NN,1);
     
     for tt = 1:MAXITERS-1
-        if mod(tt,1000)==0,fprintf('progress: %d\n',tt*.002);end
+        if mod(tt,500)==0,fprintf('progress: %d\n',tt*.02);end
         
         %stepsize
-        alpha_t = 0.1*(1/tt)^0.6; % 1/tt^alpha with alpha in (0.5, 1]
+        alpha_t = 0.1*(1/tt)^.6; % 1/tt^alpha with alpha in (0.5, 1]
         
         
         
