@@ -11,7 +11,7 @@ clear all; clc; close all;
 rng(1)
 
 % AGENTS DEFINITION
-NN = 50;
+NN = 5;
 
 % min{z1...zN} sum{1,N}(ci'*zi)
 % subj: 	sum{1,N} (Hi*zi)=b == sum{1,N}(Hi*zi-bi)=0

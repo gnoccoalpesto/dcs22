@@ -1,8 +1,8 @@
 function...
     [primCost,dualCost,primRA,dualRA,consErr,lam,zz,zra,MAXITERS]=...
-                           dualsub(NN,AA,bb,cc,dd,DD,HH,LBB,UBB)
+                           dualsub(NN,AA,AANW,bb,cc,dd,DD,HH,LBB,UBB)
 % dd,DD,LBB unused
-    MAXITERS = 5e3;
+    MAXITERS = 5e4;
     fprintf('progress %d%\n',MAXITERS);
 
     disp('initializing...');
@@ -34,13 +34,26 @@ function...
 	%		vl_i^t+1= sum{j € N_i} (a_ij*la_j^t)
             % == update: averaging
             % vi =  sum_{k:1:N} aik*muk^t
+            
+%         for ii=1:NN
+%             %-2-
+%             N_ii = find(AA(:,ii)~=0)';
+%             for jj = N_ii
+%                 vv(ii) = vv(ii) + AA(ii,jj)*lam(jj,tt);
+%             end
+%         end
         for ii=1:NN
-            %-2-
-            N_ii = find(AA(:,ii)~=0)';
+            N_ii = find(AANW(:,ii) == 1)';
+
+    % update: averaging
+    % vi =  sum_{k:1:N} aik*muk^t
+            vv(ii) = AA(ii,ii)*lam(ii,tt);
+    
             for jj = N_ii
                 vv(ii) = vv(ii) + AA(ii,jj)*lam(jj,tt);
             end
         end
+        
     
         %        z_i^t+1 € argmin{z_i€Z_i}(f_i(z_i)+(v_^t+1)'*g_i(z_i))
         %             zi^t+1=argmin{zi€Pi}(ci*zi + (vi^t+1)' * gi(zi))
