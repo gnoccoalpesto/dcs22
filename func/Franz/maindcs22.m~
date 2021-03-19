@@ -46,7 +46,7 @@ fprintf('Centralized optimal cost is %.4g\n',fopt);
 
 %% 
 disp('printing...')
-fopt=0;
+
 figure
   semilogy(1:maxIters,abs(primal_cost(1:maxIters)-fopt), 'LineWidth',2);
   hold on, grid on, zoom on
@@ -57,21 +57,21 @@ figure
   ylabel('cost error')
   legend('primal cost','primal cost with running avg','dual cost','dual cost with running avg')
   
-% %
-% figure
-%   plot(1:maxIters,lambda(1), 'LineWidth',2);
-%   hold on, grid on, zoom on
-%   xlabel('t')
-%   ylabel('\lambda_i^t')
-% 
-% %
-% figure
-%   plot(1:maxIters,sum(ZZ,1)-b, 'LineWidth',2);
-%   hold on, grid on, zoom on
-%   plot(1:maxIters,sum(ZRA,1)-b, 'LineWidth',2);
-%   xlabel('t')
-% %   ylabel('x_1^t + ... + x_N^t - b')
-%   legend('z','z from running avg')
+%
+figure
+  plot(1:maxIters,lambda(1), 'LineWidth',2);
+  hold on, grid on, zoom on
+  xlabel('t')
+  ylabel('\lambda_i^t')
+
+%
+figure
+  plot(1:maxIters,sum(ZZ,1)-b, 'LineWidth',2);
+  hold on, grid on, zoom on
+  plot(1:maxIters,sum(ZRA,1)-b, 'LineWidth',2);
+  xlabel('t')
+%   ylabel('x_1^t + ... + x_N^t - b')
+  legend('z','z from running avg')
   
   
 %

@@ -3,7 +3,7 @@ function...
                 lam,ZZ,ZRA,MAXITERS]=...
                            dualsub(NN,nni,AA,AANW,bb,cc,dd,DD,HH,LBB,UBB)
 % dd,DD,LBB unused
-    MAXITERS = 1e2;
+    MAXITERS = 1e4;
     fprintf('progress %d%\n',MAXITERS);
 
     disp('initializing...');
@@ -19,7 +19,7 @@ function...
     ZZ=zeros(NN,nni,MAXITERS); 
     ZRA=zeros(NN,nni,MAXITERS);
     
-    SS=nni;
+    SS=ni;
     % when %==SS is displayed, means that it's our particular case nni==SS
     
     %multiplier init
@@ -84,7 +84,7 @@ function...
             for jj=1:nni %==SS
                 %-3-
                 if cc((ii-1)*nni+jj)+ ...
-                   HH(ii,nni*(ii-1)+jj) * vv(ii,jj)<0
+                   HH(ii,nni*(ii-1)+1 : nni*(ii-1)+jj) * vv(ii,jj)<0
                
                     ZZ(ii,jj,tt) = UBB((ii-1)*nni+jj);
                 end
@@ -104,10 +104,11 @@ function...
     
         for ii=1:NN
             for jj=1:SS
-                grad_ii_jj= HH(ii, nni*(ii-1)+jj)...
+                
+            grad_ii_jj= HH(ii,nni*(ii-1)+1 : nni*(ii-1)+jj)...
                             * ZZ(ii,jj,tt)-bb(jj);
                         
-            lam(ii,jj,tt+1) = vv(ii,jj) + alpha_t*grad_ii_jj;
+            lam(ii,jj,tt+1) = vv(ii,jj) + alpha_t*grad_ii_jj;   
             end
         end
         
@@ -169,11 +170,10 @@ function...
     end
     
   
-    for ii=1:NN
-        for jj=1:nni % == SS
+    for ii=1:NN, for jj=1:nni % == SS
         
         if cc((ii-1)*nni+jj)+ ...
-            HH(ii,nni*(ii-1)+jj) * vv(ii,jj)<0
+            HH(ii,nni*(ii-1)+1 : nni*(ii-1)+jj) * vv(ii,jj)<0
                
         	ZZ(ii,jj,tt) = UBB((ii-1)*nni+jj);
         end
@@ -206,8 +206,7 @@ function...
         dualRA(tt) = dualRA(tt) + qqi;
 
 %             consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
-        end
-    end
+    end, end
     
      
 end
