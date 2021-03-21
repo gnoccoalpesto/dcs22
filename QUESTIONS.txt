@@ -3,4 +3,8 @@
 
 -3- cosa usare in questo caso,in assenza di lower bound?
 
--4-
+-4- SPLIT b
+
+-5- UNDERSTAND FIRST INDEX H
+
+-6- use linprog for minimize xi^t+1

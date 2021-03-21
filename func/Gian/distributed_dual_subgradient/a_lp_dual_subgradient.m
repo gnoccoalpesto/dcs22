@@ -55,10 +55,10 @@ for tt = 1:MAXITERS-1
   if mod(tt,100)==0
       fprintf('Iteration n. %d\n',tt);
   end
-  Primal Update
-  for ii=1:NN
-     ZZ(ii,tt) = linprog(c(ii)+alpha(tt)*H(ii),[],[],[],[],LB(ii),UB(ii),options); %H needs to be defined (we can use the Id)
-  end
+%   Primal Update
+%   for ii=1:NN
+%      ZZ(ii,tt) = linprog(c(ii)+lambda(tt)*H(ii),[],[],[],[],LB(ii),UB(ii),options); %H needs to be defined (we can use the Id)
+%   end
   for ii=1:NN
     if c(ii)+LA(tt)*H(ii)>=0
         ZZ(ii,tt) = LB(ii);

@@ -45,13 +45,14 @@ options = optimoptions('linprog','Display','none');
 fprintf('Centralized optimal cost is %.4g\n',fopt);
 
 %% 
+maxIters=maxIters-1;
 disp('printing...')
 fopt=0;
 figure
   semilogy(1:maxIters,abs(primal_cost(1:maxIters)-fopt), 'LineWidth',2);
   hold on, grid on, zoom on
   semilogy(1:maxIters,abs(primal_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
-  semilogy(1:maxIters,abs(dual_cost(1:maxIters)-fopt), 'LineWidth',2);
+  semilogy(1:maxIters,abs(dual_cost(1:maxIters)-fopt), 'LineWidth',5);
   semilogy(1:maxIters,abs(dual_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
   xlabel('t')
   ylabel('cost error')
