@@ -1,10 +1,5 @@
 
--2- evitare di usare la matrice non pesata e di aggiungere a parte il self loop (non presente nella ANW)
+-2- usare eps non vero disuguaglianza
 
--3- cosa usare in questo caso,in assenza di lower bound?
 
--4- SPLIT b
-
--5- UNDERSTAND FIRST INDEX H
-
--6- use linprog for minimize xi^t+1
+-a- togliere run.avg da for interno farlo vettoriale

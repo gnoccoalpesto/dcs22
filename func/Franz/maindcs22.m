@@ -28,7 +28,7 @@ LB=probdata.LB;
 disp('solving with dual subgradient method...')
 
 [primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,...consensus_error,
-    lambda,ZZ,ZRA,maxIters] =dualsub(AgN,Agni,A,ANW,b,c,[],[],H,[],UB);
+    lambda,ZZ,ZRA,maxIters] =dualsub(AgN,Agni,A,ANW,b,c,d,D,H,LB,UB);
 %d,D,LB unused
 
 %%

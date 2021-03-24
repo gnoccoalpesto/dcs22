@@ -3,7 +3,7 @@ function...
                 lam,ZZ,ZRA,MAXITERS]=...
                            dualsub(NN,nni,AA,AANW,bb,cc,dd,DD,HH,LBB,UBB)
 % dd,DD,LBB unused
-    MAXITERS = 1e5;
+    MAXITERS = 1e5 ;
     fprintf('iterations: %d% \n',MAXITERS);
 
     fprintf('initializing...');
@@ -48,7 +48,7 @@ function...
             
 %         for ii=1:NN %modified neigh version
 %             %-2-
-%             N_ii = find(AA(:,ii)~=0)';
+%             N_ii = find(AA(:,ii)~=0)'; % use eps not 0
 %             for jj = N_ii,vv(ii) = vv(ii) + AA(ii,jj)*lam(jj,tt);end
 %         end
 
@@ -91,18 +91,11 @@ function...
 %         to select only the matrix Hi, relatively to agent ii
 %           takes all rows and only the columns spanning for 
 %            agent's dimension
-
+            ZZ(ii,:,tt)=linprog(ci',[],[],Hi,vv(ii,:),[],UBB);
+            % introdurre vincolo f(xi)+(v^t+1)'*g(xi)
+            % Running average
             for jj=1:nni %==SS
-                %-3- -6-
-                if ci(jj)+ Hi(jj,jj) * vv(ii,jj)<0 %H(i,...) or H(j,...)
-                    % -5-
-                    ZZ(ii,jj,tt) = UBi(jj);
-                    %else =0
-                end
-                
-                %linprog version
-%                  ZZ(ii,:,tt)=linprog(ci',[],[],Hi,vv(ii,:),[],UBB);
-                % Running average
+               % -a- 
                 if tt==1
                     ZRA(ii,jj,tt) = ZZ(ii,jj,tt);
                 else
