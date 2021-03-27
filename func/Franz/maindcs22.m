@@ -20,7 +20,7 @@ graphprob=1;% €(0,1]
 disp('generated!')
 
 b=probdata.b;c=probdata.c;
-%d=probdata.d;D=probdata.D;
+d=probdata.d;D=probdata.D;
 H=probdata.H;UB=probdata.UB;
 LB=probdata.LB;
 
