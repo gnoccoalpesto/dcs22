@@ -1,5 +1,0 @@
-
--2- usare eps non vero disuguaglianza
-
-
--a- togliere run.avg da for interno farlo vettoriale

@@ -6,10 +6,10 @@ function...
     %linprog options
     lpoptions = optimoptions('linprog','Display','none');
     
-    % percentage printing init
+    % % printing init
     msglnt=0;
     
-    MAXITERS =5e3 ;
+    MAXITERS =5e2;
     fprintf('iterations: %d  \n',MAXITERS);
 
     fprintf('initializing...\n');
@@ -29,7 +29,7 @@ function...
     % when %==SS is displayed, means that it's our particular case nni==SS
     
     %multiplier init
-    lam=zeros(NN,SS,MAXITERS);% ????????????????????????????????????????
+    lam=zeros(NN,SS,MAXITERS);% 
     vv=zeros(NN,SS); % vv=[...;vi;...], vi€ R ^ SS
     
     % b splitting
@@ -42,7 +42,12 @@ function...
         end
         
         %stepsize
-        alpha_t = 0.1*(1/tt)^.6; % 1/tt^alpha with alpha in (0.5, 1]
+        alpha_t = 1.6*(1/tt)^0.65; % 1/tt^alpha with alpha in (0.5, 1]
+        
+%         aa=0.1;%bb=0.1;% a,b>0
+%         alpha_t=aa/(bb+tt);%square summable, not summable s.size
+%         alpha_t=aa/sqrt(tt);%nonsummable diminishing s.size
+%         alpha_t=aa/modulus(g(k),2);%nons. dim. const. s.length
         
         
         
@@ -55,7 +60,6 @@ function...
             % vi =  sum_{k:1:N} aik*muk^t
             
 %         for ii=1:NN %modified neigh version
-%             %-2-
 %             N_ii = find(AA(:,ii)~=0)'; % use eps not 0
 %             for jj = N_ii,vv(ii) = vv(ii) + AA(ii,jj)*lam(jj,tt);end
 %         end
@@ -65,13 +69,14 @@ function...
 %             vv(ii,:) = AA(ii,ii)*lam(ii,:,tt);
 %             for jj = N_ii,vv(ii) = vv(ii) + AA(ii,jj)*lam(jj,tt);end
 %         end
+        
 
-        for ii=1:NN %iterate for each agent
-            for kk=1:SS %iterate in agent's dimension
-                N_ii = find(AANW(:,ii) == 1)';% neigh(i)
-
-        % update: averaging
-        % vvi =  sum_{k:1:N} aik*lam_k^t
+        for ii=1:NN
+            N_ii = find(AANW(:,ii) == 1)';% neigh(i)
+            for kk=1:SS 
+                
+                % update: averaging
+                % vvi =  sum_{k:1:N} aik*lam_k^t
                 vv(ii,kk) = AA(ii,ii)*lam(ii,kk,tt);
 
                 for jj = N_ii
@@ -96,14 +101,18 @@ function...
             LBi=LBB((ii-1)*nni+1:ii*nni);
             Di=DD(ii,SS*(ii-1)+1:SS*ii);
             
+            
             %%% for ii=1:NN, H(:,nni*(ii-1)+1:nni*(ii-1)+nni);end     %%%
 %                   ==Hii € R^ SS x nni
 %         to select only the matrix Hi, relatively to agent ii
 %           takes all rows and only the columns spanning for 
 %            agent's dimension
 % [ZZ(ii,:,tt),fval,exitflag]
-            [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi,[],[],...
-                Di,dd(ii),LBi,UBi,lpoptions);
+
+
+            [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,dd(ii),...
+            [],[],LBi,UBi,lpoptions);
+            
 %             hi(zi)=Hi*zi-bi
 %             zi^t+1= argmin{...} (...
 %                 c'*z +(vi^t+1)'*hi(zi) )
@@ -135,11 +144,17 @@ function...
         for ii=1:NN
             
             Hi=HH(:,nni*(ii-1)+1:nni*ii);
-            for jj=1:SS
-                grad_ii_jj= Hi(jj,jj)* ZZ(ii,jj,tt)-bi(jj);
-                        
-            lam(ii,jj,tt+1) = vv(ii,jj) + alpha_t*grad_ii_jj;
-            end
+%             grad_ii=Hi*ZZ(ii,:,tt)-bi;
+%             lam(ii,:,tt+1)=vv(ii,:)+alpha_t*grad_ii;
+
+            grad_ii=Hi*ZZ(ii,:,tt)'-bi;
+            lam(ii,:,tt+1)=vv(ii,:)'+alpha_t*grad_ii;
+        
+%             for jj=1:SS
+%                 grad_ii_jj= Hi(jj,jj)* ZZ(ii,jj,tt)-bi(jj);
+%                         
+%                 lam(ii,jj,tt+1) = vv(ii,jj) + alpha_t*grad_ii_jj;
+%             end
         end
                
 
@@ -158,30 +173,34 @@ function...
         for ii=1:NN
             ci=cc((ii-1)*nni+1 : ii*nni);
             
-            for jj=1:nni % == SS
+            ffii = ci * ZZ(ii,:,tt)';
+            primCost(tt) = primCost(tt) + ffii;
+            %
+            ffii = ci * ZRA(ii,:,tt)';
+            primRA(tt) = primRA(tt) + ffii;
+            %
+            qqi = ci * ZZ(ii,:,tt)'...
+                +lam(ii,:,tt) * ( ZZ(ii,:,tt) - bi' )';
+            dualCost(tt) = dualCost(tt) + qqi;
+            %
+            qqi = ci *ZRA(ii,:,tt)'...
+                + lam(ii,:,tt) * ( ZRA(ii,:,tt) - bi' )';
+            dualRA(tt) = dualRA(tt) + qqi;
                 
-                ffii_jj = ci(jj) * ZZ(ii,jj,tt);
-
-                primCost(tt) = primCost(tt) + ffii_jj;
-                %
-                ffii_jj = ci(jj) * ZRA(ii,jj,tt);
-
-                primRA(tt) = primRA(tt) + ffii_jj;
-                %
-                qqi = ci(jj) * ZZ(ii,jj,tt)...
-                    ...
-                    +lam(ii,jj,tt) * ( ZZ(ii,jj,tt) - bi(jj) );
-
-                dualCost(tt) = dualCost(tt) + qqi;
-                %
-                qqi = ci(jj) *ZRA(ii,jj,tt)...
-                    ...
-                    + lam(ii,jj,tt) * ( ZRA(ii,jj,tt) - bi(jj) );
-
-                dualRA(tt) = dualRA(tt) + qqi;
-
 %             consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
-            end
+
+%            for jj=1:nni % == SS
+%                 ffii_jj = ci(jj) * ZZ(ii,jj,tt);
+%                 primCost(tt) = primCost(tt) + ffii_jj;
+%                 ffii_jj = ci(jj) * ZRA(ii,jj,tt);
+%                 primRA(tt) = primRA(tt) + ffii_jj;
+%                 qqi = ci(jj) * ZZ(ii,jj,tt)...
+%                     +lam(ii,jj,tt) * ( ZZ(ii,jj,tt) - bi(jj) );
+%                 dualCost(tt) = dualCost(tt) + qqi;
+%                 qqi = ci(jj) *ZRA(ii,jj,tt)...
+%                     + lam(ii,jj,tt) * ( ZRA(ii,jj,tt) - bi(jj) );
+%                 dualRA(tt) = dualRA(tt) + qqi;
+%             end
         end
         %percentage printing
         if mod(tt-99,MAXITERS/100)==0
@@ -219,8 +238,8 @@ function...
         Di=DD(ii,SS*(ii-1)+1:SS*ii);
             
   
-        [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi,[],[],...
-            Di,dd(ii),LBi,UBi,lpoptions);
+        [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi',Di,dd(ii),...
+            [],[],LBi,UBi,lpoptions);
             % Running average
         if tt==1
             ZRA(ii,:,tt) = ZZ(ii,:,tt);
@@ -229,33 +248,21 @@ function...
                                              +ZZ(ii,:,tt));
         end
         
-        
-        
-        
-        for jj=1:nni % == SS
-        
-            ffii_jj = ci(jj) * ZZ(ii,jj,tt);
-
-            primCost(tt) = primCost(tt) + ffii_jj;
-            %
-            ffii_jj = ci(jj) * ZRA(ii,jj,tt);
-
-            primRA(tt) = primRA(tt) + ffii_jj;
-            %
-            qqi = ci(jj) * ZZ(ii,jj,tt)...
-                ...
-                +lam(ii,jj,tt) * ( ZZ(ii,jj,tt) - bi(jj) );
-
-            dualCost(tt) = dualCost(tt) + qqi;
-            %
-            qqi = ci(jj) *ZRA(ii,jj,tt)...
-                ...
-                + lam(ii,jj,tt) * ( ZRA(ii,jj,tt) - bi(jj) );
-
-            dualRA(tt) = dualRA(tt) + qqi;
-
-%             consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
-        end
+        ffii = ci * ZZ(ii,:,tt)';
+        primCost(tt) = primCost(tt) + ffii;
+        %
+        ffii = ci * ZRA(ii,:,tt)';
+        primRA(tt) = primRA(tt) + ffii;
+        %
+        qqi = ci * ZZ(ii,:,tt)'...
+            +lam(ii,:,tt) * ( ZZ(ii,:,tt) - bi' )';
+        dualCost(tt) = dualCost(tt) + qqi;
+        %
+        qqi = ci *ZRA(ii,:,tt)'...
+            + lam(ii,:,tt) * ( ZRA(ii,:,tt) - bi' )';
+        dualRA(tt) = dualRA(tt) + qqi;
+            
+%        consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
     end
     
      
@@ -317,7 +324,7 @@ end
 % 
 % evolution:	for t>=0
 %     gather      mu_j^t from neigh | j€N_i
-%     
+%       
 %     compute     v_i^t+1= sum{j € N_i} (a_ij*mu_j^t)
 %     
 %                 z_i^t+1 € argmin{z_i€Z_i}(f_i(z_i)+(v_^t+1)'*g_i(z_i))

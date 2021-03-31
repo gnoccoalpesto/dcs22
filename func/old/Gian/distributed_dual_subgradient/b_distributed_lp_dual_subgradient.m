@@ -146,7 +146,7 @@ for tt = 1:MAXITERS-1
 	MU_avg = mean(MU(:,tt));
 
   for ii=1:NN
-    ff_ii = cc_LP(ii)*XX(ii,tt);
+    ff_ii = cc_LP(ii)*XX(ii,tt);    
     primal_cost(tt) = primal_cost(tt) + ff_ii;
     
     ff_ii = cc_LP(ii)*XX_RA(ii,tt);
@@ -219,9 +219,9 @@ figure
 
 %%
 figure
-  plot(1:MAXITERS,sum(XX,1)-bb_centr, 'LineWidth',2);
+  plot(1:MAXITERS,sum(XX)-bb_centr, 'LineWidth',2);
   hold on, grid on, zoom on
-  plot(1:MAXITERS,sum(XX_RA,1)-bb_centr, 'LineWidth',2);
+  plot(1:MAXITERS,sum(XX_RA)-bb_centr, 'LineWidth',2);
   xlabel('t')
   ylabel('x_1^t + ... + x_N^t - b')
   legend('x','x from running avg')
