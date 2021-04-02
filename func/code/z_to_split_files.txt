@@ -1,0 +1,13 @@
+binomialGraph both
+cyclicGraph both
+dualsub 1
+maindcs22 1
+mcTask1 1
+myGraph both
+pathGraph both
+progen both
+spawnEntities 2
+task2dcs22 2
+twodualsub 2
+weightMatrix both
+
