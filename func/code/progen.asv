@@ -9,7 +9,7 @@ function progenres=progen(N,M,toggleTask2)
 %           Hi€R^NxKi
 %           Hi=Hi(tasks, robots):1) evaluation of distances (>max)
 %                                2) robot type that can perform a task
-%     b= 1(vect) % siNngle task->performed by:<-->:can perform<-single agent 
+%     b= 1(vect) % single task->performed by:<-->:can perform<-single agent 
 %     ci= ci (tasks', robots' positions)+noise
 %     Di=0
 %     di=0
@@ -17,14 +17,14 @@ function progenres=progen(N,M,toggleTask2)
 %         zi'*Gik =1=gik
 %     gi= 1 vett = [...;gik;...]
 c=zeros(N*N,1);
-agents=spawnEntities(false,N);
-tasks=spawnEntities(false,N);
+agents=spawnEntities(false,N,square);
+tasks=spawnEntities(false,N,square);
         for ii=1:N %agents
     %Ki=N_In(k);
             for kk=1:N
     %         cik=distfunc(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
     
-            c((ii-1)*N+kk)=sqrt(sum((agents-tasks).^2,2));
+            c((ii-1)*N,kk)=(sqrt(sum((agents-tasks).^2),2));
     %         cik=cik+random_noise;
             end
         end
