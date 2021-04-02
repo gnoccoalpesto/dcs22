@@ -16,20 +16,31 @@ function progenres=progen(N,M,toggleTask2)
 %     Gi=[...Gik...] | Gik=[...;1;...]
 %         zi'*Gik =1=gik
 %     gi= 1 vett = [...;gik;...]
+X=1;
+Y=1;
 c=zeros(N*N,1);
-agents=spawnEntities(false,N);
-tasks=spawnEntities(false,N);
+agents=spawnEntities(false,N,X,Y,3); %square 1*1
+tasks=spawnEntities(false,N,X,Y,5); %square 1*1
         for ii=1:N %agents
     %Ki=N_In(k);
             for kk=1:N
     %         cik=distfunc(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
     
-            c((ii-1)*N+kk)=sqrt(sum((agents-tasks).^2,2));
+            c((ii-1)*N+kk)=sqrt(sum((agents(ii)-tasks(kk)).^2,2));
     %         cik=cik+random_noise;
             end
         end
 %     spawn agents
-
+      H_t2=repmat(diag(round(1.49*rand(1,M))), [1,N]);% == [...Hj...]
+      b = ones(M,1); %M=SS=Ki
+      W = randi([5 25],N,M);
+      G = zeros(N,M*N);% D=[...Dj...]
+        for i = 1:N
+            G(i,M*(i-1)+1:M*(i-1)+M) = W(i,:);
+        end
+      progenres.G=G;
+      progenres.H_t2=H_t2;progenres.agents=agents; progenres.tasks;
+      progenres.X=X;progenres.Y=Y;
    else
     % N agents
     % ci € R^ni
@@ -83,22 +94,19 @@ tasks=spawnEntities(false,N);
             d(ijk) = 9*(M/N) + 0.4*max(c_v); 
         end
 
-        b = ones(M,1);
+        b = ones(M,1); %M=SS=Ki
         H = repmat(eye(M,M), [1,N]); % == [...Hj...] 
         % nota: la "separazione" della b sui vari agenti è arbitraria:
         % - tutta ad uno
         % - media a ciascuno
         % - whatever ...
-
+       
         % machine capacity, local constraints
         D = zeros(N,M*N);% D=[...Dj...]
         for i = 1:N
             D(i,M*(i-1)+1:M*(i-1)+M) = W(i,:);
         end
-         G = zeros(N,M*N);% D=[...Dj...]
-        for i = 1:N
-            G(i,M*(i-1)+1:M*(i-1)+M) = W(i,:);
-        end
+         
         %maximize profit
         c = reshape(P',[1,M*N]);% c=[...cj...]
         LB = zeros((N*M),1);
@@ -111,7 +119,6 @@ tasks=spawnEntities(false,N);
 
         progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
         progenres.H=H;progenres.LB=LB;progenres.UB=UB;
-    end
     
 
 end
