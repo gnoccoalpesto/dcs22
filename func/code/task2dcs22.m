@@ -44,6 +44,8 @@ LB=probdata.LB;
 disp('generated!')
 %% spawn tasks
 
+
+
 %%
 disp('solving with dual subgradient method...')
 
@@ -67,3 +69,47 @@ disp('solving with dual subgradient method...')
 
 %
 %
+
+Ag=probdata.agents;
+Ts=probdata.tasks;
+
+Assign=[N,2];
+
+plot(Ag(:,1),Ag(:,2),'ro');
+hold on 
+pause(2);
+plot(Ts(:,1),Ts(:,2),'gx');
+
+Ass_mat % matrix where xik defines if agents i has assigned to do task k
+
+
+Assign=find(Ass_mat);
+
+  for ii=1:NN
+      
+      agent_x=Ag(Assign(ii,1),1); %Assign(ii,1) agent to be selected
+      agent_y=Ag(Assign(ii,1),2);
+      
+      task_x=Ts(Assign(ii,2),1); %Assign(ii,1) task to be assinged
+      task_y=Ts(Assign(ii,2),2);
+      
+      plot([agent_x; agent_y], [task_x; task_y]);
+      
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

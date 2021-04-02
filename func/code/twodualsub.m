@@ -1,6 +1,6 @@
 function...
     [primCost,dualCost,primRA,dualRA,...consErr,
-                lam,ZZ,ZRA,MAXITERS]=...
+                lam,ZZ,ZRA,MAXITERS,assignment]=...
                            twodualsub(NN,AA,AANW,bb,cc,gg,GG,HH,LBB,UBB)
                        
     lpoptions = optimoptions('linprog','Display','none');
@@ -20,8 +20,8 @@ function...
     ZZ=zeros(NN,NN,MAXITERS);
     ZRA=zeros(NN,NN,MAXITERS);
 
-    lam=zeros(NN,SS,MAXITERS);%???
-    vv=zeros(NN,SS);%    
+    lam=zeros(NN,NN,MAXITERS);%???
+    vv=zeros(NN,NN);%    
 
     bi=bb/NN;%???
     
@@ -37,7 +37,7 @@ function...
 
         for ii=1:NN
             N_ii = find(AANW(:,ii) == 1)';
-            for kk=1:SS 
+            for kk=1:NN 
                 
                 vv(ii,kk) = AA(ii,ii)*lam(ii,kk,tt);
 
@@ -49,11 +49,12 @@ function...
 
         for ii=1:NN
             
-            ci=cc((ii-1)*nni+1 : ii*nni);
-            Hi=HH(:,nni*(ii-1)+1:nni*ii);
-            UBi=UBB((ii-1)*nni+1:ii*nni);
-            LBi=LBB((ii-1)*nni+1:ii*nni);
-            Di=GG(ii,SS*(ii-1)+1:SS*ii);
+            %need to remove values based on H
+            ci=cc((ii-1)*NN+1 : ii*NN);
+            Hi=HH(:,NN*(ii-1)+1:NN*ii);
+            UBi=UBB((ii-1)*NN+1:ii*NN);
+            LBi=LBB((ii-1)*NN+1:ii*NN);
+            Di=GG(ii,NN*(ii-1)+1:NN*ii);
             
             
             [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,gg(ii),...
