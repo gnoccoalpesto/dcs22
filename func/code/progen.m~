@@ -20,7 +20,9 @@ function progenres=progen(N,M,toggleTask2)
 	%N: NUMBER OF AGENTS 
 	%M: SIZE OF AGENTS' LOCAL OPTIM. VAR. 
     % ATTENTION! IT MUST STAND M>N
-      
+    
+	if not(M>N),error('mandatory: M>N, N first value'),end
+    
     
     if nargin>2 && toggleTask2
 %         Ub=1
@@ -29,7 +31,7 @@ function progenres=progen(N,M,toggleTask2)
 %           Hi€R^NxKi
 %           Hi=Hi(tasks, robots):1) evaluation of distances (>max)
 %                                2) robot type that can perform a task
-%     b= 1(vect) % single task->performed by:<-->:can perform<-single agent 
+%     b= 1(vect) % single task performed by:<-->:can perform single 
 %     ci= ci (tasks', robots' positions)+noise
 %     Di=0
 %     di=0
@@ -48,7 +50,6 @@ function progenres=progen(N,M,toggleTask2)
 
     else
         
-        if not(M>N),error('mandatory: M>N, N first value'),end
         % % profit associated with assigning job j to machine i
         P_ = randi([10 25],N,M);
         P  = max(P_,[],'all') +1 - P_ ;

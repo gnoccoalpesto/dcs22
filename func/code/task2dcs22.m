@@ -27,33 +27,22 @@ AgN=3;
 %dimension of agents
 Agni=4;
 
-%spawn agenti
-
-% spawn task
-
-% generazione problema 2
 % c=c(distanza agente i task k)=cik  C€R^N*Ki:sottoassieme(R^NxN)
-for ii=1:N %agents
-    %Ki=N_In(k);
-    for kk=1:N%==Ki
-%         cik=distfunc(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
-        cik=(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
-%         cik=cik+random_noise;
-    end
-end
+
 stocasticity='doubly';
 graphtype='binomial';
 graphprob=1;% €(0,1]
 [ANW,A]=myGraph(AgN,stocasticity,graphtype,graphprob);
 %ANW unused (since it's easily identifiable from A)
 
- 
-disp('generated!')
 
 b=probdata.b;c=probdata.c;
-d=probdata.d;D=probdata.D;
+g=probdata.g;G=probdata.G;
 H=probdata.H;UB=probdata.UB;
 LB=probdata.LB;
+
+disp('generated!')
+%% spawn tasks
 
 %%
 disp('solving with dual subgradient method...')

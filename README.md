@@ -20,7 +20,7 @@ using Distributed Dual Subgradient:
 contained in "Distributed optimization for smart cyber-physical networks"
 
 2) montecarlo simulation and plots to show convergence varying N and problem size
-
+------------------------------------------------------------------------
 # TASK 2
 {-> possible further improvements}
 

@@ -64,7 +64,15 @@ function...
                 end
             end
         end
+        
+        
+    
+        %        z_i^t+1 € argmin{z_i€Z_i}(f_i(z_i)+(v_^t+1)'*g_i(z_i))
+        %             zi^t+1=argmin{zi€Pi}(ci*zi + (vi^t+1)' * gi(zi))
+        %            =argmin{zi€Pi}( (ci'+ (vi^t+1)'*Hi)*zi)
+        
 
+        
         for ii=1:NN
             
             ci=cc((ii-1)*nni+1 : ii*nni);
@@ -74,28 +82,73 @@ function...
             Di=DD(ii,SS*(ii-1)+1:SS*ii);
             
             
+            %%% for ii=1:NN, H(:,nni*(ii-1)+1:nni*(ii-1)+nni);end     %%%
+%                   ==Hii € R^ SS x nni
+%         to select only the matrix Hi, relatively to agent ii
+%           takes all rows and only the columns spanning for 
+%            agent's dimension
+% [ZZ(ii,:,tt),fval,exitflag]
+
+
             [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,dd(ii),...
             [],[],LBi,UBi,lpoptions);
             
-
+%             hi(zi)=Hi*zi-bi
+%             zi^t+1= argmin{...} (...
+%                 c'*z +(vi^t+1)'*hi(zi) )
+%             c'*z +(vi^t+1)'*Hi*zi
+%             (c' + (vi^t+1)'*Hi) zi + const
+            % introdurre vincolo f(xi)+(v^t+1)'*g(xi)
+            % Running average
             if tt==1
                 ZRA(ii,:,tt) = ZZ(ii,:,tt);
             else
                 ZRA(ii,:,tt) = (1/tt)*((tt-1)*ZRA(ii,:,tt-1)...
                                                   +ZZ(ii,:,tt));
             end
-
+%             for jj=1:nni %==SS
+%                % -a- 
+%                 if tt==1
+%                     ZRA(ii,jj,tt) = ZZ(ii,jj,tt);
+%                 else
+%                     ZRA(ii,jj,tt) = (1/tt)*((tt-1)*ZRA(ii,jj,tt-1)...
+%                                         +ZZ(ii,jj,tt));
+%                 end
+%             end
         end
-
+    
+        
+        %update      mu_i^t+1 = P{mu>=0} (vm_i^t+1+alpha^t*g_i(z_i^t+1))
+	%		la_i^t+1=v_i^t+1+alpha^t*g_i(z_i^t+1)
+    
         for ii=1:NN
             
             Hi=HH(:,nni*(ii-1)+1:nni*ii);
-            
+%             grad_ii=Hi*ZZ(ii,:,tt)-bi;
+%             lam(ii,:,tt+1)=vv(ii,:)+alpha_t*grad_ii;
+
             grad_ii=Hi*ZZ(ii,:,tt)'-bi;
             lam(ii,:,tt+1)=vv(ii,:)'+alpha_t*grad_ii;
-
+        
+%             for jj=1:SS
+%                 grad_ii_jj= Hi(jj,jj)* ZZ(ii,jj,tt)-bi(jj);
+%                         
+%                 lam(ii,jj,tt+1) = vv(ii,jj) + alpha_t*grad_ii_jj;
+%             end
         end
+               
 
+         % Running average
+%         for ii=1:NN
+%             if tt==1
+%                 zra(ii,tt) = z(ii,tt);
+%             else
+%                 zra(ii,tt) = (1/tt)*((tt-1)*zra(ii,tt-1)+z(ii,tt));
+%             end
+%         end
+        
+    
+%         lamAvg=mean(lam(:,:,tt)); %paused
 
         for ii=1:NN
             ci=cc((ii-1)*nni+1 : ii*nni);
@@ -116,7 +169,20 @@ function...
                 
 %             consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
 
+%            for jj=1:nni % == SS
+%                 ffii_jj = ci(jj) * ZZ(ii,jj,tt);
+%                 primCost(tt) = primCost(tt) + ffii_jj;
+%                 ffii_jj = ci(jj) * ZRA(ii,jj,tt);
+%                 primRA(tt) = primRA(tt) + ffii_jj;
+%                 qqi = ci(jj) * ZZ(ii,jj,tt)...
+%                     +lam(ii,jj,tt) * ( ZZ(ii,jj,tt) - bi(jj) );
+%                 dualCost(tt) = dualCost(tt) + qqi;
+%                 qqi = ci(jj) *ZRA(ii,jj,tt)...
+%                     + lam(ii,jj,tt) * ( ZRA(ii,jj,tt) - bi(jj) );
+%                 dualRA(tt) = dualRA(tt) + qqi;
+%             end
         end
+        %percentage printing
         if mod(tt-99,MAXITERS/100)==0
             fprintf((repmat('\b', 1,msglnt)));
         end
@@ -126,10 +192,11 @@ function...
     tt=MAXITERS;
     fprintf((repmat('\b', 1,msglnt)));
     fprintf('progress: %d%%\n',100);
+%     lamAvg=(1/tt)*((tt-1)*lamAvg+lam(ii,tt)); %"running" avg
     
     for ii=1:NN
         for kk=1:SS
-            N_ii = find(AANW(:,ii) == 1)';
+            N_ii = find(AANW(:,ii) == 1)';% neigh(i)
 
             vv(ii,kk) = AA(ii,ii)*lam(ii,kk,tt);
 
