@@ -67,3 +67,8 @@ disp('solving with dual subgradient method...')
 
 %
 %
+%%%%%%%%GRAPHS%%%%%%%
+hold on
+xlim=[0,probdata.X];
+ylim=[0,probdata.Y];
+plot(
