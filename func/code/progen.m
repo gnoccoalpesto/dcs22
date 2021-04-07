@@ -1,8 +1,10 @@
-function progenres=progen(N,M,toggleTask2)
+function progenres=progen(N,M,toggleTask2,areaWidth,...
+                    areaHeigth,toggleFullAssign)
   
       
     
     if nargin>2 && toggleTask2
+        M=N;
 %         Ub=1
 %         Lb=0
 %     Hi subass(eye(n)) | missing column k if agent i cant perform task k
@@ -16,31 +18,51 @@ function progenres=progen(N,M,toggleTask2)
 %     Gi=[...Gik...] | Gik=[...;1;...]
 %         zi'*Gik =1=gik
 %     gi= 1 vett = [...;gik;...]
-X=1;
-Y=1;
-c=zeros(N*N,1);
-agents=spawnEntities(false,N,X,Y,3); %square 1*1
-tasks=spawnEntities(false,N,X,Y,5); %square 1*1
+
+        agents=spawnEntities(false,N,areaWidth,areaHeigth,3); %square 1*1
+        tasks=spawnEntities(false,N,areaWidth,areaHeigth,5); %square 1*1
+        
+        c=zeros(N*N,1);
+        % noise mean and variance
+        noizmean=0;
+        noizvar=0.001;
+        
         for ii=1:N %agents
-    %Ki=N_In(k);
+            %Ki=N_In(k);
             for kk=1:N
     %         cik=distfunc(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
-    
-            c((ii-1)*N+kk)=sqrt(sum((agents(ii)-tasks(kk)).^2,2));
+                rnoiz=randn(1,1);% normally distributed
+                rnoiz=(rnoiz+noizmean)/std(rnoiz)*sqrt(noizvar);
+                c((ii-1)*N+kk)=sqrt(sum((agents(ii)-tasks(kk)).^2,2))+rnoiz;
     %         cik=cik+random_noise;
             end
         end
-%     spawn agents
-      H_t2=repmat(diag(round(1.49*rand(1,M))), [1,N]);% == [...Hj...]
-      b = ones(M,1); %M=SS=Ki
-      W = randi([5 25],N,M);
-      G = zeros(N,M*N);% D=[...Dj...]
-        for i = 1:N
-            G(i,M*(i-1)+1:M*(i-1)+M) = W(i,:);
+        if toggleFullAssign
+            H=repmat(eye(M), [1,N]); 
+        else
+            H=zeros(N,N*M);% == [...Hj...]
+            while 1
+                for ii=1:N
+                    Hi=diag(round(1.49*rand(1,M)));
+                end
+                    H(:,(ii-1)*N+1:(ii-1)*N+M)=Hi;
+                if sum(H,2)>=1, break,end
+            end
         end
-      progenres.G=G;
-      progenres.H_t2=H_t2;progenres.agents=agents; progenres.tasks;
-      progenres.X=X;progenres.Y=Y;
+    
+        b = ones(M,1); %M=SS=Ki
+        G =ones(N,N*M);% G=[...Gi...],Gi=ones(N,M),
+        g=ones(N*M,1);% g=[...;gi;...], gi=ones(M,1)
+        LB=zeros(M*N,1);
+        UB=ones(M*N,1);
+
+        progenres.c=c; progenres.b=b;
+        progenres.G=G;progenres.g=g;
+        progenres.H=H;
+        progenres.LB=LB;progenres.UB=UB;
+        progenres.agents=agents; progenres.tasks=tasks;
+        progenres.areaWidth=areaWidth;
+        progenres.areaHeigth=areaHeigth;
    else
     % N agents
     % ci € R^ni
@@ -120,5 +142,5 @@ tasks=spawnEntities(false,N,X,Y,5); %square 1*1
         progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
         progenres.H=H;progenres.LB=LB;progenres.UB=UB;
     
-
+    end
 end

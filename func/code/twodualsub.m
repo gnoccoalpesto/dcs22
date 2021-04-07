@@ -54,13 +54,10 @@ function...
             Hi=HH(:,NN*(ii-1)+1:NN*ii);
             UBi=UBB((ii-1)*NN+1:ii*NN);
             LBi=LBB((ii-1)*NN+1:ii*NN);
-            Di=GG(ii,NN*(ii-1)+1:NN*ii);
-            
-            
-            [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,gg(ii),...
-            [],[],LBi,UBi,lpoptions);
-            
-
+            Di=DD(ii,NN*(ii-1)+1:NN*ii);
+            %di=??
+            [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,[],...
+                    Gi,gi,LBi,UBi,lpoptions);
             if tt==1
                 ZRA(ii,:,tt) = ZZ(ii,:,tt);
             else
@@ -129,11 +126,16 @@ function...
 %         Hi=HH(:,nni*(ii-1)+1:nni*ii);
 %         UBi=UBB((ii-1)*nni+1:ii*nni);
 %         LBi=LBB((ii-1)*nni+1:ii*nni);
-%         Gi=GG(ii,SS*(ii-1)+1:SS*ii);
-            
-  
-        [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi',Di,gg(ii),...
-            [],[],LBi,UBi,lpoptions);
+%         Gi=GG(ii,SS*(ii-1)+1:SS*ii); ?????
+        %???? dimensionalità
+        ci=cc((ii-1)*NN+1 : ii*NN);
+        Hi=HH(:,NN*(ii-1)+1:NN*ii);
+        UBi=UBB((ii-1)*NN+1:ii*NN);
+        LBi=LBB((ii-1)*NN+1:ii*NN); 
+        Di=DD(ii,NN*(ii-1)+1:NN*ii);
+
+        [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,di(ii),...
+                Gi,gi,Gi,gi',LBi,UBi,lpoptions);
         if tt==1
             ZRA(ii,:,tt) = ZZ(ii,:,tt);
         else

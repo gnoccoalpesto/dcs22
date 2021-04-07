@@ -20,12 +20,13 @@ rng(1);
 
 
 %% 
+
 disp('generating problem ...')
 
 %number of agents
-AgN=3;
+AgN=6;
 %dimension of agents
-Agni=4;
+Agni=Agn;
 
 % c=c(distanza agente i task k)=cik  C€R^N*Ki:sottoassieme(R^NxN)
 
@@ -42,8 +43,8 @@ H=probdata.H;UB=probdata.UB;
 LB=probdata.LB;
 
 disp('generated!')
-%% spawn tasks
-
+%% spawn agents and tasks (temporary)
+agents
 
 
 %%
@@ -73,30 +74,29 @@ disp('solving with dual subgradient method...')
 Ag=probdata.agents;
 Ts=probdata.tasks;
 
-Assign=[N,2];
+figure();
+plot(Ag(:,1),Ag(:,2),'go');
+    hold on
+    pause(1);
+    plot(Ts(:,1),Ts(:,2),'rx');
 
-plot(Ag(:,1),Ag(:,2),'ro');
-hold on 
-pause(2);
-plot(Ts(:,1),Ts(:,2),'gx');
+% Ass_mat = ZRA(:,:,tt) ;
+% maybe recast assign mat in bool
 
-Ass_mat % matrix where xik defines if agents i has assigned to do task k
-
-
-Assign=find(Ass_mat);
-
+[ag4assign,ts4assign]=find(Ass_mat==1);
+pause(1);
   for ii=1:NN
       
-      agent_x=Ag(Assign(ii,1),1); %Assign(ii,1) agent to be selected
-      agent_y=Ag(Assign(ii,1),2);
+      agent_x=Ag(ag4assign(ii),1); %Assign(ii,1) agent to be selected
+      agent_y=Ag(ag4assign(ii),2);
       
-      task_x=Ts(Assign(ii,2),1); %Assign(ii,1) task to be assinged
-      task_y=Ts(Assign(ii,2),2);
+      task_x=Ts(ts4assign(ii),1); %Assign(ii,1) task to be assinged
+      task_y=Ts(ts4assign(ii),2);
+      line([agent_x,task_x],[agent_y,task_y],'color',[rand rand rand]);
       
-      plot([agent_x; agent_y], [task_x; task_y]);
       
   end
-
+hold off
 
 
 
