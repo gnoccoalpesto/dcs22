@@ -54,10 +54,13 @@ function...
             Hi=HH(:,NN*(ii-1)+1:NN*ii);
             UBi=UBB((ii-1)*NN+1:ii*NN);
             LBi=LBB((ii-1)*NN+1:ii*NN);
-            Di=DD(ii,NN*(ii-1)+1:NN*ii);
-            %di=??
-            [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,[],...
-                    Gi,gi,LBi,UBi,lpoptions);
+            Gi=GG(:,NN*(ii-1)+1:NN*ii); %M could be different than NN
+            gi=cc((ii-1)*NN+1 : ii*NN); %M could be different than NN
+            %Di=DD(ii,NN*(ii-1)+1:NN*ii);
+            %we don't use the D and d because we are doing the check on UB
+            %LB
+            [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', [],[],...
+                    Gi,gi(ii),LBi,UBi,lpoptions);
             if tt==1
                 ZRA(ii,:,tt) = ZZ(ii,:,tt);
             else
@@ -134,8 +137,8 @@ function...
         LBi=LBB((ii-1)*NN+1:ii*NN); 
         Di=DD(ii,NN*(ii-1)+1:NN*ii);
 
-        [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', Di,di(ii),...
-                Gi,gi,Gi,gi',LBi,UBi,lpoptions);
+        [ZZ(ii,:,tt),~,~]=linprog(ci+(vv(ii,:))*Hi', [],[],...
+                Gi,gi(ii),LBi,UBi,lpoptions);
         if tt==1
             ZRA(ii,:,tt) = ZZ(ii,:,tt);
         else
