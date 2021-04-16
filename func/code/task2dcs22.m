@@ -24,9 +24,9 @@ rng(1);
 disp('generating problem ...')
 
 %number of agents
-AgN=6;
+AgN=12;
 %dimension of agents
-Agni=Agn;
+Agni=AgN;
 
 % c=c(distanza agente i task k)=cik  C€R^N*Ki:sottoassieme(R^NxN)
 
@@ -35,23 +35,24 @@ graphtype='binomial';
 graphprob=1;% €(0,1]
 [ANW,A]=myGraph(AgN,stocasticity,graphtype,graphprob);
 %ANW unused (since it's easily identifiable from A)
+probdata=progen(AgN,Agni,true,1,1,false,true);
 
-
-b=probdata.b;c=probdata.c;
-g=probdata.g;G=probdata.G;
-H=probdata.H;UB=probdata.UB;
-LB=probdata.LB;
+G=probdata.G;H=probdata.H;b=probdata.b;
+c=probdata.c;g=probdata.g;
+UB=probdata.UB;LB=probdata.LB;
+myagents=probdata.agents;
+mytasks=probdata.tasks;
 
 disp('generated!')
 %% spawn agents and tasks (temporary)
-agents
 
 
 %%
 disp('solving with dual subgradient method...')
 
-[primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,...consensus_error,
-    lambda,ZZ,ZRA,maxIters] =dualsub(AgN,Agni,A,ANW,b,c,d,D,H,LB,UB);
+[primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,consensus_error,...
+    lambda,ZZ,ZRA,maxIters] = twodualsub(AgN,A,ANW,b,c,g,G,H,LB,UB);...
+%                                        ,myagents,mytasks);
 %d,D,LB unused
 
 %% confronto centralizato distribuito
@@ -80,12 +81,11 @@ plot(Ag(:,1),Ag(:,2),'go');
     pause(1);
     plot(Ts(:,1),Ts(:,2),'rx');
 
-% Ass_mat = ZRA(:,:,tt) ;
-% maybe recast assign mat in bool
+Ass_mat = ZRA(:,:,maxIters)>=0.98;
 
 [ag4assign,ts4assign]=find(Ass_mat==1);
-pause(1);
-  for ii=1:NN
+
+  for ii=1:AgN
       
       agent_x=Ag(ag4assign(ii),1); %Assign(ii,1) agent to be selected
       agent_y=Ag(ag4assign(ii),2);

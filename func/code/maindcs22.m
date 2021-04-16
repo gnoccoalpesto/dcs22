@@ -46,7 +46,7 @@ LB=probdata.LB;
 %%
 disp('solving with dual subgradient method...')
 
-[primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,...consensus_error,
+[primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,consensus_error,...
     lambda,ZZ,ZRA,maxIters] =dualsub(AgN,Agni,A,ANW,b,c,d,D,H,LB,UB);
 %d,D,LB unused
 
@@ -66,46 +66,47 @@ fprintf('Centralized optimal cost is %.4g\n',fopt);
 %% 
 %maxIters=maxIters-1;
 disp('printing...')
-figure
-  semilogy(1:maxIters,abs(primal_cost(1:maxIters)-fopt), 'LineWidth',2);
-  hold on, grid on, zoom on
-  semilogy(1:maxIters,abs(primal_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
-  semilogy(1:maxIters,abs(dual_cost(1:maxIters)-fopt), 'LineWidth',5);
-  semilogy(1:maxIters,abs(dual_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
-  xlabel('t')
-  ylabel('cost error')
-  legend('primal cost','primal cost with running avg',...
-                'dual cost','dual cost with running avg')
-if 1 
-    % %
-    % hold on
-    % for kk=1:Agni
-    %     plot(1:maxIters,lambda(:,kk,:), 'LineWidth',2);
-    %     hold on, grid on, zoom on
-    %     xlabel('t')
-    %     ylabel('\lambda_i^t')
-    % end
-    % hold off
-    % %
-    zum=reshape(sum(ZZ),Agni,maxIters);
-    zumra=reshape(sum(ZRA),Agni,maxIters);
-    for kk=1:Agni
-        figure
-          plot(1:maxIters,zum(kk,:)-b(kk), 'LineWidth',2);
-          hold on, grid on, zoom on
-          plot(1:maxIters,zumra(kk,:)-b(kk), 'LineWidth',2);
-          xlabel('t')
-          ylabel('x_1^t + ... + x_N^t - b')
-          legend('z','z from running avg')
-    %       ylim([(min(min(zum,[],'all')-0.2*max(zum,[],'all'),...
-    %           min(zumra,[],'all')-0.2*max(zumra,[],'all'))),...
-    %           1.2*max(max(zum,[],'all'),max(zumra,[],'all'))]) 
-    end  
-    
-    %
-    % figure
-    %   semilogy(1:maxIters,consensus_error(1:maxIters), 'LineWidth',2);
-    %   hold on, grid on, zoom on
-    %   xlabel('t')
-    %   ylabel('consensus error')
+% figure
+%   semilogy(1:maxIters,abs(primal_cost(1:maxIters)-fopt), 'LineWidth',2);
+%   hold on, grid on, zoom on
+%   semilogy(1:maxIters,abs(primal_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
+%   semilogy(1:maxIters,abs(dual_cost(1:maxIters)-fopt), 'LineWidth',5);
+%   semilogy(1:maxIters,abs(dual_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
+%   xlabel('t')
+%   ylabel('cost error')
+%   legend('primal cost','primal cost with running avg',...
+%                 'dual cost','dual cost with running avg')
+% 
+% % %
+% % hold on
+% % for kk=1:Agni
+% %     plot(1:maxIters,lambda(:,kk,:), 'LineWidth',2);
+% %     hold on, grid on, zoom on
+% %     xlabel('t')
+% %     ylabel('\lambda_i^t')
+% % end
+% % hold off
+% % %
+% zum=reshape(sum(ZZ),Agni,maxIters);
+% zumra=reshape(sum(ZRA),Agni,maxIters);
+% for kk=1:Agni
+%     figure
+%       plot(1:maxIters,zum(kk,:)-b(kk), 'LineWidth',2);
+%       hold on, grid on, zoom on
+%       plot(1:maxIters,zumra(kk,:)-b(kk), 'LineWidth',2);
+%       xlabel('t')
+%       ylabel('x_1^t + ... + x_N^t - b')
+%       legend('z','z from running avg')
+% %       ylim([(min(min(zum,[],'all')-0.2*max(zum,[],'all'),...
+% %           min(zumra,[],'all')-0.2*max(zumra,[],'all'))),...
+% %           1.2*max(max(zum,[],'all'),max(zumra,[],'all'))]) 
+% end  
+consMatr4print=reshape(consensus_error,Agni,maxIters);
+for kk=11:Agni%works on single iteraction
+    figure
+    consRow4print=consMatr4print(kk,:);
+      semilogy(1:maxIters,consRow4print(1:maxIters), 'LineWidth',2);
+%       hold on, grid on, zoom on
+%       xlabel('t')
+%       ylabel('consensus error')
 end

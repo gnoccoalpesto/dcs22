@@ -1,8 +1,6 @@
 function progenres=progen(N,M,toggleTask2,areaWidth,...
-                    areaHeigth,toggleFullAssign)
+                    areaHeigth,tgleNoise,partyMode)
   
-      
-    
     if nargin>2 && toggleTask2
         M=N;
 %         Ub=1
@@ -24,20 +22,23 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
         
         c=zeros(N*N,1);
         % noise mean and variance
-        noizmean=0;
-        noizvar=0.001;
+%         noizmean=0;
+%         noizvar=1;
+        noizCoeff=0.1;
+        if tgleNoise, noizCoeff=0; end
         
         for ii=1:N %agents
             %Ki=N_In(k);
             for kk=1:N
     %         cik=distfunc(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
-                rnoiz=randn(1,1);% normally distributed
-                rnoiz=(rnoiz+noizmean)/std(rnoiz)*sqrt(noizvar);
+                rnoiz=noizCoeff*rand();%randn(1,1);% normally distributed
+                
+%                 rnoiz=(rnoiz+noizmean)/std(rnoiz)*sqrt(noizvar);
                 c((ii-1)*N+kk)=sqrt(sum((agents(ii)-tasks(kk)).^2,2))+rnoiz;
     %         cik=cik+random_noise;
             end
         end
-        if toggleFullAssign
+        if partyMode
             H=repmat(eye(M), [1,N]); 
         else
             H=zeros(N,N*M);% == [...Hj...]

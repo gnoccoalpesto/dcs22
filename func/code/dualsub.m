@@ -1,5 +1,5 @@
 function...
-    [primCost,dualCost,primRA,dualRA,...consErr,
+    [primCost,dualCost,primRA,dualRA,consErr,...
                 lam,ZZ,ZRA,MAXITERS]=...
                            dualsub(NN,nni,AA,AANW,bb,cc,dd,DD,HH,LBB,UBB)
 
@@ -17,7 +17,7 @@ function...
     dualCost=zeros(MAXITERS,1);
     primRA=zeros(MAXITERS,1);
     dualRA=zeros(MAXITERS,1);
-%     consErr=zeros(MAXITERS,1);
+    consErr=zeros(1,nni,MAXITERS);
     
     % agents init
     % agent zi € R^ni, zz=[...;zi;...] agent matrix € R^N x ni
@@ -42,7 +42,7 @@ function...
         end
         
         %stepsize
-        alpha_t = 1.6*(1/tt)^0.65; % 1/tt^alpha with alpha in (0.5, 1]
+        alpha_t = 1.6*(1/tt)^0.69; % 1/tt^alpha with alpha in (0.5, 1]
         
 %         aa=0.1;%bb=0.1;% a,b>0
 %         alpha_t=aa/(bb+tt);%square summable, not summable s.size
@@ -168,7 +168,8 @@ function...
 %         end
         
     
-%         lamAvg=mean(lam(:,:,tt)); %paused
+        lamAvg = mean(lam(:,:,tt));%€R^1xNNxMaxIters
+
 
         for ii=1:NN
             ci=cc((ii-1)*nni+1 : ii*nni);
@@ -186,8 +187,8 @@ function...
             qqi = ci *ZRA(ii,:,tt)'...
                 + lam(ii,:,tt) * ( ZRA(ii,:,tt) - bi' )';
             dualRA(tt) = dualRA(tt) + qqi;
-                
-%             consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
+           
+            consErr(:,:,tt) = consErr(:,:,tt) + abs(lam(ii,:,tt) - lamAvg);
 
 %            for jj=1:nni % == SS
 %                 ffii_jj = ci(jj) * ZZ(ii,jj,tt);
@@ -228,6 +229,9 @@ function...
         end
     end
     
+    
+    lamAvg = mean(lam(:,:,tt));%€R^1xNNxMaxIters
+
   
     for ii=1:NN
         
@@ -262,7 +266,7 @@ function...
             + lam(ii,:,tt) * ( ZRA(ii,:,tt) - bi' )';
         dualRA(tt) = dualRA(tt) + qqi;
             
-%        consErr(tt) = consErr(tt) + norm(lam(ii,tt) - lamAvg);
+        consErr(:,:,tt) = consErr(:,:,tt) + abs(lam(ii,:,tt) - lamAvg);
     end
     
      
