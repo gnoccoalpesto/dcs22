@@ -53,6 +53,7 @@ function...
             Hi=HH(:,NN*(ii-1)+1:NN*ii);
             UBi=UBB((ii-1)*NN+1:ii*NN);
             LBi=LBB((ii-1)*NN+1:ii*NN);
+
             
             Gi=GG(:,NN*(ii-1)+1:NN*ii);
             gi=gg((ii-1)*NN+1 : ii*NN);
@@ -62,7 +63,7 @@ function...
          
             [ZZ(ii,:,tt),~,~]=linprog((ci+(vv(ii,:))*Hi)', [],[],...
                     Gi,gi,LBi,UBi,lpoptions);
-               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
             if tt==1
                 ZRA(ii,:,tt) = ZZ(ii,:,tt);
             else
@@ -138,8 +139,10 @@ function...
         Gi=GG(:,NN*(ii-1)+1:NN*ii);
         gi=gg((ii-1)*NN+1 : ii*NN);
 
+
         [ZZ(ii,:,tt),~,~]=linprog((ci+vv(ii,:)*Hi)', [],[],...
                     Gi,gi,LBi,UBi,lpoptions);
+
         if tt==1
             ZRA(ii,:,tt) = ZZ(ii,:,tt);
         else
