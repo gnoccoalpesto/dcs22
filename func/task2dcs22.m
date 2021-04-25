@@ -1,6 +1,3 @@
-clear,clc,close all
-rng(1);
-
 % DCS 2020
 % PROJECT 3
 % GROUP 22: CANELLO
@@ -8,6 +5,8 @@ rng(1);
 %           RONCATO
 
 %task2
+clear,clc,close all
+rng(69);
 
 % adds to path the folder containing this file and library subfolders
 addpath(fileparts(which('task2dcs22')));
@@ -19,52 +18,47 @@ addpath(fullfile(fileparts(which('task2dcs22')),'/task2'));
 
 disp('generating problem ...')
 
-%number of agents
-AgN=6;
-%dimension of agents
+% number of agents
+AgN=12;
+% dimension of agents
 Agni=AgN;
-
-% c=c(distanza agente i task k)=cik  C€R^N*Ki:sottoassieme(R^NxN)
-
+% number of iterations
+maxIters=1e4;
+% 
 stocasticity='doubly';
+% graph topology
 graphtype='binomial';
 graphprob=1;% €(0,1]
+
 [ANW,A]=myGraph(AgN,stocasticity,graphtype,graphprob);
-%ANW unused (since it's easily identifiable from A)
-probdata=progen(AgN,Agni,true,1,1,false,true,[0,0]);
+
+% data generation
+probdata=progen(AgN,Agni,true,1,1,true,true,[3,5]);
 
 G=probdata.G;H=probdata.H;b=probdata.b;
 c=probdata.c;g=probdata.g;
 UB=probdata.UB;LB=probdata.LB;
-myagents=probdata.agents;
-mytasks=probdata.tasks;
 areaHeigth=probdata.areaHeigth;
 areaWidth=probdata.areaWidth;
+Ag=probdata.agents;
+Ts=probdata.tasks;
 
 disp('generated!')
-%% spawn agents and tasks (temporary)
 
-
-%%
+%% distributed solution
 disp('solving with dual subgradient method...')
 
 [primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,consensus_error,...
-    lambda,ZZ,ZRA,maxIters] = twodualsub(AgN,A,ANW,b,c,g,G,H,LB,UB);...
-%                                        ,myagents,mytasks);
-%d,D,LB unused
+    lambda,ZZ,ZRA] = twodualsub(maxIters,AgN,A,ANW,b,c,g,G,H,LB,UB);
 
-%% confronto centralizato distribuito
-% disp('centralized solution');
-% 
+%% centralized solution
+
 options = optimoptions('linprog','Display','none');
 [~, fopt, exit_flag] = linprog(c,[],[],[H;G],[b;g],LB,UB,options);
 
-%%
+%% results
 
 disp('printing...')
-
-Ag=probdata.agents;
-Ts=probdata.tasks;
 
 figure();
 plot(Ag(:,1),Ag(:,2),'go');
@@ -72,26 +66,31 @@ plot(Ag(:,1),Ag(:,2),'go');
     pause(1);
     plot(Ts(:,1),Ts(:,2),'rx');
 
-Ass_mat = ZRA(:,:,maxIters)>=.7;%0.98;
+% assignation thresholding
+% Ass_mat = ZRA(:,:,maxIters)>=.7;
+Ass_mat = round(ZRA(:,:,maxIters))>0.99999;
 
 [ag2assign,ts4assign]=find(Ass_mat==1);
 
-  for ii=1:AgN
+  for ii=1:length(ag2assign)
       
-      agent_x=Ag(ag2assign(ii),1); %Assign(ii,1) agent to be selected
+      agent_x=Ag(ag2assign(ii),1);
       agent_y=Ag(ag2assign(ii),2);
       
-      task_x=Ts(ts4assign(ii),1); %Assign(ii,1) task to be assinged
+      task_x=Ts(ts4assign(ii),1);
       task_y=Ts(ts4assign(ii),2);
       line([agent_x,task_x],[agent_y,task_y],'color',[rand rand rand]);
       
       
   end
-% xlim([0,1]);
-% ylim([0,1]);
-plot([0,0,areaWidth,areaWidth],[0,areaHeigth,0,areaHeigth],'*k');
+% area boundaris
+line([0,0],[agent_y,task_y],'color',[0 0 0]);
+line([0,areaHeigth],[agent_y,task_y],'color',[0 0 0]);
+line([areaWidth,0],[agent_y,task_y],'color',[0 0 0]);
+line([areaWidth,areaHeigth],[agent_y,task_y],'color',[0 0 0]);
 hold off
 
+% assignment cost
 cost4assign=0;
 for ii=1:AgN
     cost4assign=cost4assign+c((ag2assign(ii)-1)*AgN+ts4assign(ii));

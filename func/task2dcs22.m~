@@ -1,6 +1,3 @@
-clear,clc,close all
-rng(1);
-
 % DCS 2020
 % PROJECT 3
 % GROUP 22: CANELLO
@@ -19,19 +16,19 @@ addpath(fullfile(fileparts(which('task2dcs22')),'/task2'));
 
 disp('generating problem ...')
 
-%number of agents
-AgN=3;
-%dimension of agents
+% number of agents
+AgN=6;
+% dimension of agents
 Agni=AgN;
-
-% c=c(distanza agente i task k)=cik  C€R^N*Ki:sottoassieme(R^NxN)
+% number of iterations
+maxIters=1e4;
 
 stocasticity='doubly';
 graphtype='binomial';
 graphprob=1;% €(0,1]
 [ANW,A]=myGraph(AgN,stocasticity,graphtype,graphprob);
 %ANW unused (since it's easily identifiable from A)
-probdata=progen(AgN,Agni,true,1,1,false,true);
+probdata=progen(AgN,Agni,true,1,1,true,true,[3,5]);
 
 G=probdata.G;H=probdata.H;b=probdata.b;
 c=probdata.c;g=probdata.g;
@@ -42,20 +39,16 @@ areaHeigth=probdata.areaHeigth;
 areaWidth=probdata.areaWidth;
 
 disp('generated!')
-%% spawn agents and tasks (temporary)
-
 
 %%
 disp('solving with dual subgradient method...')
 
 [primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,consensus_error,...
-    lambda,ZZ,ZRA,maxIters] = twodualsub(AgN,A,ANW,b,c,g,G,H,LB,UB);...
-%                                        ,myagents,mytasks);
-%d,D,LB unused
+    lambda,ZZ,ZRA] = twodualsub(maxIters,AgN,A,ANW,b,c,g,G,H,LB,UB);
 
-%% confronto centralizato distribuito
+%% centralized cost
 % disp('centralized solution');
-% 
+
 options = optimoptions('linprog','Display','none');
 [~, fopt, exit_flag] = linprog(c,[],[],[H;G],[b;g],LB,UB,options);
 
@@ -76,7 +69,7 @@ Ass_mat = ZRA(:,:,maxIters)>=.7;%0.98;
 
 [ag2assign,ts4assign]=find(Ass_mat==1);
 
-  for ii=1:AgN
+  for ii=1:length(ag2assign)
       
       agent_x=Ag(ag2assign(ii),1); %Assign(ii,1) agent to be selected
       agent_y=Ag(ag2assign(ii),2);
@@ -87,11 +80,14 @@ Ass_mat = ZRA(:,:,maxIters)>=.7;%0.98;
       
       
   end
-% xlim([0,1]);
-% ylim([0,1]);
-plot([0,0,areaWidth,areaWidth],[0,areaHeigth,0,areaHeigth],'*k');
+% area boundaris
+line([0,0],[agent_y,task_y],'color',[0 0 0]);
+line([0,areaHeigth],[agent_y,task_y],'color',[0 0 0]);
+line([areaWidth,0],[agent_y,task_y],'color',[0 0 0]);
+line([areaWidth,areaHeigth],[agent_y,task_y],'color',[0 0 0]);
 hold off
 
+% assignment cost
 cost4assign=0;
 for ii=1:AgN
     cost4assign=cost4assign+c((ag2assign(ii)-1)*AgN+ts4assign(ii));

@@ -30,7 +30,7 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
         % noise mean and variance
 %         noizmean=0;
 %         noizvar=1;
-        noizCoeff=0.1;
+        noizCoeff=0.3;
         if not(noiseOn), noizCoeff=0; end
         
         for ii=1:N

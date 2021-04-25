@@ -1,13 +1,12 @@
 function...
     [primCost,dualCost,primRA,dualRA,consErr,...
-                lam,ZZ,ZRA,MAXITERS]=...
-                           twodualsub(NN,AA,AANW,bb,cc,gg,GG,HH,LBB,UBB)
+                lam,ZZ,ZRA]=...
+                           twodualsub(MAXITERS,NN,AA,AANW,bb,cc,gg,GG,HH,LBB,UBB)
                        
     lpoptions = optimoptions('linprog','Display','none');
 
     msglnt=0;
-      
-    MAXITERS =5e3;
+    
     fprintf('iterations: %d  \n',MAXITERS);
 
     fprintf('initializing...\n');
