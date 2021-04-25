@@ -7,7 +7,7 @@ function...
 
     msglnt=0;
       
-    MAXITERS =1e3;
+    MAXITERS =5e3;
     fprintf('iterations: %d  \n',MAXITERS);
 
     fprintf('initializing...\n');
@@ -107,7 +107,6 @@ function...
     end
     
     tt=MAXITERS;
-    fprintf((repmat('\b', 1,msglnt)));
     fprintf('progress: %d%%\n',100);
     
     for ii=1:NN

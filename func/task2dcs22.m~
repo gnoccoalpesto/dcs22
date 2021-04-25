@@ -7,60 +7,96 @@ rng(1);
 %           CERRI
 %           RONCATO
 
-%task1
+%task2
 
 % adds to path the folder containing this file and library subfolders
 addpath(fileparts(which('task2dcs22')));
 addpath(fullfile(fileparts(which('task2dcs22')),'/both'));
-addpath(fullfile(fileparts(which('task2dcs22')),'/task1'));
+addpath(fullfile(fileparts(which('task2dcs22')),'/task2'));
 
 
 %% 
+
 disp('generating problem ...')
 
 %number of agents
 AgN=3;
 %dimension of agents
-Agni=4;
+Agni=AgN;
 
-probdata=progen(AgN,Agni);
+% c=c(distanza agente i task k)=cik  C€R^N*Ki:sottoassieme(R^NxN)
 
 stocasticity='doubly';
 graphtype='binomial';
 graphprob=1;% €(0,1]
 [ANW,A]=myGraph(AgN,stocasticity,graphtype,graphprob);
 %ANW unused (since it's easily identifiable from A)
+probdata=progen(AgN,Agni,true,1,1,false,true);
 
- 
+G=probdata.G;H=probdata.H;b=probdata.b;
+c=probdata.c;g=probdata.g;
+UB=probdata.UB;LB=probdata.LB;
+myagents=probdata.agents;
+mytasks=probdata.tasks;
+areaHeigth=probdata.areaHeigth;
+areaWidth=probdata.areaWidth;
+
 disp('generated!')
+%% spawn agents and tasks (temporary)
 
-b=probdata.b;c=probdata.c;
-d=probdata.d;D=probdata.D;
-H=probdata.H;UB=probdata.UB;
-LB=probdata.LB;
 
 %%
 disp('solving with dual subgradient method...')
 
 [primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,consensus_error,...
-    lambda,ZZ,ZRA,maxIters] =dualsub(AgN,Agni,A,ANW,b,c,d,D,H,LB,UB);
+    lambda,ZZ,ZRA,maxIters] = twodualsub(AgN,A,ANW,b,c,g,G,H,LB,UB);...
+%                                        ,myagents,mytasks);
 %d,D,LB unused
 
-%%
-disp('centralized solution');
-
+%% confronto centralizato distribuito
+% disp('centralized solution');
+% 
 options = optimoptions('linprog','Display','none');
-[~, fopt, exit_flag] = linprog(c,D,d,H,b,LB,UB,options);
-
-% % if exit_flag ~= 1
-% %   fprintf(2,'A problem occurred in the centralized solution\n');
-% %   return;
-% % end
-
-fprintf('Centralized optimal cost is %.4g\n',fopt);
+[~, fopt, exit_flag] = linprog(c,[],[],[H;G],[b;g],LB,UB,options);
 
 %%
+
 disp('printing...')
+
+Ag=probdata.agents;
+Ts=probdata.tasks;
+
+figure();
+plot(Ag(:,1),Ag(:,2),'go');
+    hold on
+    pause(1);
+    plot(Ts(:,1),Ts(:,2),'rx');
+
+Ass_mat = ZRA(:,:,maxIters)>=.7;%0.98;
+
+[ag2assign,ts4assign]=find(Ass_mat==1);
+
+  for ii=1:AgN
+      
+      agent_x=Ag(ag2assign(ii),1); %Assign(ii,1) agent to be selected
+      agent_y=Ag(ag2assign(ii),2);
+      
+      task_x=Ts(ts4assign(ii),1); %Assign(ii,1) task to be assinged
+      task_y=Ts(ts4assign(ii),2);
+      line([agent_x,task_x],[agent_y,task_y],'color',[rand rand rand]);
+      
+      
+  end
+% xlim([0,1]);
+% ylim([0,1]);
+plot([0,0,areaWidth,areaWidth],[0,areaHeigth,0,areaHeigth],'*k');
+hold off
+
+cost4assign=0;
+for ii=1:AgN
+    cost4assign=cost4assign+c((ag2assign(ii)-1)*AgN+ts4assign(ii));
+end
+
 % figure
 %   semilogy(1:maxIters,abs(primal_cost(1:maxIters)-fopt), 'LineWidth',2);
 %   hold on, grid on, zoom on
