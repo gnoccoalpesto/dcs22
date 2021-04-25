@@ -1,7 +1,9 @@
 function progenres=progen(N,M,toggleTask2,areaWidth,...
-                    areaHeigth,tgleNoise,partyMode)
-  
+                    areaHeigth,noiseOff,partyMode)
+
+%    select task 2 by bool and number of passed arguments  
     if nargin>2 && toggleTask2
+% 	 same number of tasks and agents
         M=N;
 %         Ub=1
 %         Lb=0
@@ -13,35 +15,35 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
 %     ci= ci (tasks', robots' positions)+noise
 %     Di=0
 %     di=0
-%     Gi=[...Gik...] | Gik=[...;1;...]
+%     G=blkdiag(Gi), Gi=ones(1,M)
 %         zi'*Gik =1=gik
-%     gi= 1 vett = [...;gik;...]
+%     g=[...gi...], gi= 1
 
-        agents=spawnEntities(false,N,areaWidth,areaHeigth,3); %square 1*1
-        tasks=spawnEntities(false,N,areaWidth,areaHeigth,5); %square 1*1
-        
+% 	 randomly(seeded) generation of agents and tasks on a given area
+        agents=spawnEntities(false,N,areaWidth,areaHeigth,3);
+        tasks=spawnEntities(false,N,areaWidth,areaHeigth,5);
+
+% 	 cost for an agents to perform a task, based on the distance between them        
         c=zeros(N*N,1);
         % noise mean and variance
 %         noizmean=0;
 %         noizvar=1;
         noizCoeff=0.1;
-        if tgleNoise, noizCoeff=0; end
+        if noiseOff, noizCoeff=0; end
         
-        for ii=1:N %agents
-            %Ki=N_In(k);
+        for ii=1:N
             for kk=1:N
-    %         cik=distfunc(sqrt((xagent-xtask)^2+(yagent-ytask)^2));
-                rnoiz=noizCoeff*rand();%randn(1,1);% normally distributed
-                
+                rnoiz=noizCoeff*rand();
 %                 rnoiz=(rnoiz+noizmean)/std(rnoiz)*sqrt(noizvar);
+
                 c((ii-1)*N+kk)=sqrt(sum((agents(ii)-tasks(kk)).^2,2))+rnoiz;
-    %         cik=cik+random_noise;
             end
         end
+% 	 if true, toggles off limitations on which agent may do each task
         if partyMode
             H=repmat(eye(M), [1,N]); 
         else
-            H=zeros(N,N*M);% == [...Hj...]
+            H=zeros(N,N*M);
             while 1
                 for ii=1:N
                     Hi=diag(round(1.49*rand(1,M)));
@@ -50,10 +52,19 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
                 if sum(H,2)>=1, break,end
             end
         end
-    
-        b = ones(M,1); %M=SS=Ki
-        G =ones(N,N*M);% G=[...Gi...],Gi=ones(N,M),
-        g=ones(N*M,1);% g=[...;gi;...], gi=ones(M,1)
+
+%     
+        b = ones(M,1);
+%%%
+%        G =ones(N,N*M);
+%        g=ones(N*M,1);
+	G=zeros(N,N^2);
+        for ii=1:N
+            G(ii,(ii-1)*N+1:ii*N)=ones(1,N);
+        end
+        g=ones(N,1);
+%%%
+% 	 bounds for agents' states
         LB=zeros(M*N,1);
         UB=ones(M*N,1);
 
@@ -64,8 +75,13 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
         progenres.agents=agents; progenres.tasks=tasks;
         progenres.areaWidth=areaWidth;
         progenres.areaHeigth=areaHeigth;
+
+        clearvars %-except c G g H b LB UB agents tasks areaWidth areaHeight
+%#####################################################################
+% selects task 1
+
    else
-    % N agents
+    % N agents of size M, M>N
     % ci € R^ni
     % Hi € R^S x ni
     % b € R^S
@@ -80,18 +96,14 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
     % -->
     % ni=M
     % S=M
-    % ma da Gi -> ni=N ... errore?
-    % 
-	%clear all; close all; clc;
-	%N: NUMBER OF AGENTS 
-	%M: SIZE OF AGENTS' LOCAL OPTIM. VAR. 
-    % ATTENTION! IT MUST STAND M>N      
+   
         if not(M>N),error('mandatory: M>N, N first value'),end
-        % % profit associated with assigning job j to machine i
+
+% 	 profit associated with assigning job j to machine i
         P_ = randi([10 25],N,M);
         P  = max(P_,[],'all') +1 - P_ ;
 
-        % claim on the capacity of machine i by job j
+% 	 claim on the capacity of machine i by job j
         W = randi([5 25],N,M);
         d = zeros(N,1); % d=[...dj...]
 
@@ -117,31 +129,25 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
             d(ijk) = 9*(M/N) + 0.4*max(c_v); 
         end
 
-        b = ones(M,1); %M=SS=Ki
-        H = repmat(eye(M,M), [1,N]); % == [...Hj...] 
-        % nota: la "separazione" della b sui vari agenti è arbitraria:
-        % - tutta ad uno
-        % - media a ciascuno
-        % - whatever ...
+        b = ones(M,1); %M=SS
+        H = repmat(eye(M,M), [1,N]);
        
-        % machine capacity, local constraints
+%	 machine capacity, local constraints
         D = zeros(N,M*N);% D=[...Dj...]
         for i = 1:N
             D(i,M*(i-1)+1:M*(i-1)+M) = W(i,:);
         end
          
-        %maximize profit
+%	 maximize profit
         c = reshape(P',[1,M*N]);% c=[...cj...]
         LB = zeros((N*M),1);
         UB = ones((N*M),1);
 
-        %[zopt, fopt] = linprog(c,D,d,H,b,LB,UB)
-        % min{x} c'*z | A*z=<b & Aeq*z = beq & lb=<z=<ub
 
-        clearvars -except c D d H b LB UB zopt fopt
 
         progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
         progenres.H=H;progenres.LB=LB;progenres.UB=UB;
-    
+
+        clearvars %-except c D d H b LB UB    
     end
 end

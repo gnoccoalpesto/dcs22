@@ -16,25 +16,23 @@ function...
     primRA=zeros(MAXITERS,1);
     dualRA=zeros(MAXITERS,1);
     
-%     does depend from agents dimensions aka #tasks, indeed
     consErr=zeros(1,NN,MAXITERS);
     ZZ=zeros(NN,NN,MAXITERS);
     ZRA=zeros(NN,NN,MAXITERS);
 
-    lam=0.2*ones(NN,NN,MAXITERS);
+    %lam=0.2*ones(NN,NN,MAXITERS);
+    %lam=rand(NN,NN,MAXITERS)
+    lam=zeros(NN,NN,MAXITERS);
     vv=zeros(NN,NN); 
 
     bi=bb/NN;
     
     for tt = 1:MAXITERS-1
-        
         if mod(tt,MAXITERS/100)==0
             msglnt=fprintf('progress: %d%%\n',tt*100/MAXITERS);
         end
         
-        alpha_t = 1.6*(1/tt)^0.65; % 1/tt^alpha with alpha in (0.5, 1]
-%         aa=0.1;%bb=0.1;% a,b>0
-%         alpha_t=aa/(bb+tt);%square summable, not summable s.size
+        alpha_t = 1.6*(1/tt)^0.65;
 
         for ii=1:NN
             N_ii = find(AANW(:,ii) == 1)';
@@ -48,18 +46,16 @@ function...
             end
         end
         for ii=1:NN
-            %need to remove values based on H %not needed anymore
             ci=cc((ii-1)*NN+1 : ii*NN)';
             Hi=HH(:,NN*(ii-1)+1:NN*ii);
             UBi=UBB((ii-1)*NN+1:ii*NN);
             LBi=LBB((ii-1)*NN+1:ii*NN);
 
-            
-            Gi=GG(:,NN*(ii-1)+1:NN*ii);
-            gi=gg((ii-1)*NN+1 : ii*NN);
-            %
-%             Di=DD(ii,NN*(ii-1)+1:NN*ii);  %pull out
-%             di=??                        %pull out
+%        Gi=GG(:,NN*(ii-1)+1:NN*ii);
+%        gi=gg((ii-1)*NN+1 : ii*NN);
+        Gi=GG(ii,NN*(ii-1)+1:NN*ii);
+        gi=gg(ii);
+
          
             [ZZ(ii,:,tt),~,~]=linprog((ci+(vv(ii,:))*Hi)', [],[],...
                     Gi,gi,LBi,UBi,lpoptions);
@@ -81,9 +77,7 @@ function...
             lam(ii,:,tt+1)=vv(ii,:)'+alpha_t*grad_ii;
         end
 
-% Performance check &oggi lam_z1[la1,la2,la3]
-
-	lamAvg = mean(lam(:,:,tt));%€R^1xNNxMaxIters
+	lamAvg = mean(lam(:,:,tt));
     
         for ii=1:NN
             ci=cc((ii-1)*NN+1 : ii*NN)';
@@ -128,7 +122,7 @@ function...
         end
     end
     
-    lamAvg = mean(lam(:,:,tt));%€R^1xNNxMaxIters  
+    lamAvg = mean(lam(:,:,tt)); 
     
     for ii=1:NN
         
@@ -136,9 +130,10 @@ function...
         Hi=HH(:,NN*(ii-1)+1:NN*ii);
         UBi=UBB((ii-1)*NN+1:ii*NN);
         LBi=LBB((ii-1)*NN+1:ii*NN);
-        Gi=GG(:,NN*(ii-1)+1:NN*ii);
-        gi=gg((ii-1)*NN+1 : ii*NN);
-
+%        Gi=GG(:,NN*(ii-1)+1:NN*ii);
+%        gi=gg((ii-1)*NN+1 : ii*NN);
+        Gi=GG(ii,NN*(ii-1)+1:NN*ii);
+        gi=gg(ii);
 
         [ZZ(ii,:,tt),~,~]=linprog((ci+vv(ii,:)*Hi)', [],[],...
                     Gi,gi,LBi,UBi,lpoptions);
@@ -166,6 +161,4 @@ function...
          
         consErr(:,:,tt) = consErr(:,:,tt) + abs(lam(ii,:,tt) - lamAvg);
     end
-    
-    % assign assignment
 end
