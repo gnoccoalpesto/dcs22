@@ -48,8 +48,10 @@ disp('generated!')
 %% distributed solution
 disp('solving with dual subgradient method...')
 
-[primal_cost,dual_cost,primal_cost_RA,dual_cost_RA,consensus_error,...
-    lambda,ZZ,ZRA] = twodualsub(maxIters,AgN,A,ANW,b,c,g,G,H,LB,UB);
+[primal_cost,dual_cost,...
+ primal_cost_RA,dual_cost_RA,...
+ consensus_error,lambda,ZZ,ZRA   ]...
+                        = twodualsub(maxIters,AgN,A,ANW,b,c,g,G,H,LB,UB);
 
 %% centralized solution
 
@@ -84,10 +86,10 @@ Ass_mat = round(ZRA(:,:,maxIters))>0.99999;
       
   end
 % area boundaris
-line([0,0],[agent_y,task_y],'color',[0 0 0]);
-line([0,areaHeigth],[agent_y,task_y],'color',[0 0 0]);
-line([areaWidth,0],[agent_y,task_y],'color',[0 0 0]);
-line([areaWidth,areaHeigth],[agent_y,task_y],'color',[0 0 0]);
+line([0,0],[0,areaHeigth],'color',[0 0 0]);
+line([0,areaWidth],[0,0],'color',[0 0 0]);
+line([areaWidth,areaWidth],[0,areaHeigth],'color',[0 0 0]);
+line([0,areaWidth],[areaWidth,areaHeigth,],'color',[0 0 0]);
 hold off
 
 % assignment cost
