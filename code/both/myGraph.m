@@ -1,5 +1,5 @@
 function [AA_NW, AA] = myGraph(NN, stoch, tyGraph,prob)
-% myGraph generates the agent's graph
+% myGraph calls the adequate function to generate agents graph
 %   Inputs: N Number of verteces
 %           'row','doubly' stochasticity
 %	    type of generated graph: 
@@ -9,6 +9,9 @@ function [AA_NW, AA] = myGraph(NN, stoch, tyGraph,prob)
 %
 %   Outputs: AA_NW Adjacency matrix
 %            AA    Weight matrix
+%
+%NOTE function are provided by A.Testa
+
 
     if strcmp(tyGraph,'cyclic')
         [AA_NW,AA]=cyclicGraph(NN,stoch);

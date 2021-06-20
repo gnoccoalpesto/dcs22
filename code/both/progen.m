@@ -1,79 +1,91 @@
 function progenres=progen(N,M,toggleTask2,areaWidth,...
-                    areaHeigth,noiseOn,partyMode,spawnSeed)
+                    areaHeigth,noiseOn,noRestrictions,spawnSeed)
 
-%    select task 2 by bool and number of passed arguments  
+%% problem generator for constrained coupled linear problems
+% 
+%  TASK1:
+%   input: number of agents N, agent's dimension M (M>N)
+%NOTE: generator code is imported from the one by A.Testa
+
+%  TASK2:
+%   input: number of agents/tasks N, M (M=N), Task2 mode activation toggleTask2,
+%  spawn area width and height areaWidth areaHeight, toggle noise on cost noiseOn,
+%  no restrictions on which agent can perform which task, rng seed spaqnSeed
+%  
+%   output: see each task
+%% generation
+% task 2
+%    at least 2 arguments passed and toggled 
     if nargin>2 && toggleTask2
+        
 % 	 same number of tasks and agents
         M=N;
-%         Ub=1
-%         Lb=0
-%     Hi subass(eye(n)) | missing column k if agent i cant perform task k
-%           Hi€R^NxKi
-%           Hi=Hi(tasks, robots):1) evaluation of distances (>max)
-%                                2) robot type that can perform a task
-%     b= 1(vect) % siNngle task->performed by:<-->:can perform<-single agent 
-%     ci= ci (tasks', robots' positions)+noise
-%     Di=0
-%     di=0
-%     G=blkdiag(Gi), Gi=ones(1,M)
-%         zi'*Gik =1=gik
-%     g=[...gi...], gi= 1
 
 %        check if spawnSeed vector has enough elements, otherwise fills it
         if length(spawnSeed)<2,spawnSeed=randi(10,[1,2]); end
+        
 % 	     randomly(seeded) generation of agents and tasks on a given area
         agents=spawnEntities(false,N,areaWidth,areaHeigth,spawnSeed(1));
         tasks=spawnEntities(false,N,areaWidth,areaHeigth,spawnSeed(2));
 
-% 	 cost for an agents to perform a task, based on the distance in between      
-        c=zeros(N*N,1);
-        % noise mean and variance
-%         noizmean=0;
-%         noizvar=1;
+        %     ci= ci (tasks', robots' positions)+noise
+%         cost noise
         noizCoeff=0.3;
+%         noise exclusion
         if not(noiseOn), noizCoeff=0; end
         
+% 	 cost for an agents to perform a task, based on the distance in between
+        c=zeros(N*N,1);
         for ii=1:N
             for kk=1:N
                 rnoiz=noizCoeff*rand();
-%                 rnoiz=(rnoiz+noizmean)/std(rnoiz)*sqrt(noizvar);
 
-                c((ii-1)*N+kk)=sqrt(sum((agents(ii)-tasks(kk)).^2,2))+rnoiz;
+                c((ii-1)*N+kk)=sqrt((agents(ii,1)-tasks(ii,1))^2+...
+                                 (agents(ii,2)-tasks(ii,2))^2)+rnoiz;
             end
         end
+        
+
+%   task assignment matrix, N repeated (for each agent) M*M (for each task)
+%     Hi subass(eye(n)) | missing column k if agent i cant perform task k
+%           Hi€R^NxKi
+%           Hi=Hi(tasks, robots):1) evaluation of distances (>max)
+%                                2) robot type that can perform a task
 % 	 if true, toggles off limitations on which agent may do each task
-        if partyMode
+        if noRestrictions
             H=repmat(eye(M), [1,N]); 
         else
             H=zeros(N,N*M);
+%            tries to randomly create a matrix that has each task servable
+%             by at least an agent
             while 1
                 for ii=1:N
                     Hi=diag(round(1.49*rand(1,M)));
-                end
                     H(:,(ii-1)*N+1:(ii-1)*N+M)=Hi;
-                if sum(H,2)>=1, break,end
+                end
+                if sum(H,2)>=1, break,end%servability test
             end
         end
 
-%     
+% constraint on assignation: each task should be served by a single agent
+% and viceversa
         b = ones(M,1);
-%%%
-%        G =ones(N,N*M);
-%        g=ones(N*M,1);
+
+% constraints
         G=zeros(N,N^2);
         for ii=1:N
             G(ii,(ii-1)*N+1:ii*N)=ones(1,N);
         end
-%         G=[];
-%         for ii=1:3
-%             G=blkdiag(G,ones(1,3));
-%         end
         g=ones(N,1);
-%%%
+
+        
+%     Di=0
+%     di=0
+
 % 	 bounds for agents' states
         LB=zeros(M*N,1);
         UB=ones(M*N,1);
-
+%  structured data
         progenres.c=c; progenres.b=b;
         progenres.G=G;progenres.g=g;
         progenres.H=H;
@@ -149,10 +161,9 @@ function progenres=progen(N,M,toggleTask2,areaWidth,...
         UB = ones((N*M),1);
 
 
-
+%       structured data
         progenres.b=b;progenres.c=c;progenres.d=d;progenres.D=D;
         progenres.H=H;progenres.LB=LB;progenres.UB=UB;
 
-%         clearvars %-except   
     end
 end

@@ -1,10 +1,13 @@
-% DCS 2020
+%% DCS 2020
 % PROJECT 3
 % GROUP 22: CANELLO
 %           CERRI
 %           RONCATO
 
-%task2
+%TASK 2
+% generation of an assignment problem of N tasks to N agents and resolution
+% by the means of a distributed dual subgradient algorithm
+
 clear,clc,close all
 rng(69);
 
@@ -14,27 +17,28 @@ addpath(fullfile(fileparts(which('task2dcs22')),'/both'));
 addpath(fullfile(fileparts(which('task2dcs22')),'/task2'));
 
 
-%% 
+%% problem generation
 
 disp('generating problem ...')
 
 % number of agents
-AgN=12;
+AgN=8;
 % dimension of agents
-Agni=AgN;
+Agni=AgN; % == number of tasks == agent number
 % number of iterations
-maxIters=1e4;
-% 
+maxIters=5e1;
+
+% graph characteristics
 stocasticity='doubly';
 % graph topology
 graphtype='binomial';
 graphprob=1;% €(0,1]
-
+% graph generation
 [ANW,A]=myGraph(AgN,stocasticity,graphtype,graphprob);
 
-% data generation
-probdata=progen(AgN,Agni,true,1,1,true,true,[3,5]);
-
+% problem data generation
+probdata=progen(AgN,Agni,true,1,1,true,true,[5,3]);
+% data destructuration
 G=probdata.G;H=probdata.H;b=probdata.b;
 c=probdata.c;g=probdata.g;
 UB=probdata.UB;LB=probdata.LB;
@@ -45,8 +49,8 @@ Ts=probdata.tasks;
 
 disp('generated!')
 
-%% distributed solution
-disp('solving with dual subgradient method...')
+%% distributed dual subgradient method solution
+disp('solving with dual subgradient method...    ')
 
 [primal_cost,dual_cost,...
  primal_cost_RA,dual_cost_RA,...
@@ -56,24 +60,26 @@ disp('solving with dual subgradient method...')
 %% centralized solution
 
 options = optimoptions('linprog','Display','none');
-[~, fopt, exit_flag] = linprog(c,[],[],[H;G],[b;g],LB,UB,options);
+[~, centr_cost, exit_flag] = linprog(c,[],[],[H;G],[b;g],LB,UB,options);
 
 %% results
 
 disp('printing...')
 
+% plot of agents and tasks: tasks are red X marks, agents green circles
 figure();
 plot(Ag(:,1),Ag(:,2),'go');
-    hold on
-    pause(1);
-    plot(Ts(:,1),Ts(:,2),'rx');
+hold on
+pause(1);
+plot(Ts(:,1),Ts(:,2),'rx');
 
 % assignation thresholding
-% Ass_mat = ZRA(:,:,maxIters)>=.7;
-Ass_mat = round(ZRA(:,:,maxIters))>0.99999;
+Ass_mat = round(ZRA(:,:,maxIters))>0.85;
+%NOTE could have been done rounding to 1 too
 
+% assignation extraction
 [ag2assign,ts4assign]=find(Ass_mat==1);
-
+% assignation display
   for ii=1:length(ag2assign)
       
       agent_x=Ag(ag2assign(ii),1);
@@ -85,60 +91,37 @@ Ass_mat = round(ZRA(:,:,maxIters))>0.99999;
       
       
   end
-% area boundaris
+% area boundaris reshaping (graphical purpuses only)
 line([0,0],[0,areaHeigth],'color',[0 0 0]);
 line([0,areaWidth],[0,0],'color',[0 0 0]);
 line([areaWidth,areaWidth],[0,areaHeigth],'color',[0 0 0]);
 line([0,areaWidth],[areaWidth,areaHeigth,],'color',[0 0 0]);
 hold off
 
-% assignment cost
+% assignment cost error plot
 cost4assign=0;
 for ii=1:AgN
     cost4assign=cost4assign+c((ag2assign(ii)-1)*AgN+ts4assign(ii));
 end
 
-% figure
-%   semilogy(1:maxIters,abs(primal_cost(1:maxIters)-fopt), 'LineWidth',2);
-%   hold on, grid on, zoom on
-%   semilogy(1:maxIters,abs(primal_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
-%   semilogy(1:maxIters,abs(dual_cost(1:maxIters)-fopt), 'LineWidth',5);
-%   semilogy(1:maxIters,abs(dual_cost_RA(1:maxIters)-fopt), 'LineWidth',2);
-%   xlabel('t')
-%   ylabel('cost error')
-%   legend('primal cost','primal cost with running avg',...
-%                 'dual cost','dual cost with running avg')
-% 
-% % %
-% % hold on
-% % for kk=1:Agni
-% %     plot(1:maxIters,lambda(:,kk,:), 'LineWidth',2);
-% %     hold on, grid on, zoom on
-% %     xlabel('t')
-% %     ylabel('\lambda_i^t')
-% % end
-% % hold off
-% % %
-% zum=reshape(sum(ZZ),Agni,maxIters);
-% zumra=reshape(sum(ZRA),Agni,maxIters);
-% for kk=1:Agni
-%     figure
-%       plot(1:maxIters,zum(kk,:)-b(kk), 'LineWidth',2);
-%       hold on, grid on, zoom on
-%       plot(1:maxIters,zumra(kk,:)-b(kk), 'LineWidth',2);
-%       xlabel('t')
-%       ylabel('x_1^t + ... + x_N^t - b')
-%       legend('z','z from running avg')
-% %       ylim([(min(min(zum,[],'all')-0.2*max(zum,[],'all'),...
-% %           min(zumra,[],'all')-0.2*max(zumra,[],'all'))),...
-% %           1.2*max(max(zum,[],'all'),max(zumra,[],'all'))]) 
-% end  
-consMatr4print=reshape(consensus_error,Agni,maxIters);
-for kk=11:Agni%works on single iteraction
-    figure
-    consRow4print=consMatr4print(kk,:);
-      semilogy(1:maxIters,consRow4print(1:maxIters), 'LineWidth',2);
-%       hold on, grid on, zoom on
+figure()
+semilogy(1:maxIters,abs(primal_cost(1:maxIters)-centr_cost), 'LineWidth',2);
+hold on, grid on, zoom on
+semilogy(1:maxIters,abs(primal_cost_RA(1:maxIters)-centr_cost), 'LineWidth',2);
+semilogy(1:maxIters,abs(dual_cost(1:maxIters)-centr_cost), 'LineWidth',5);
+semilogy(1:maxIters,abs(dual_cost_RA(1:maxIters)-centr_cost), 'LineWidth',2);
+xlabel('t')
+ylabel('cost error')
+legend('primal cost','primal cost with running avg',...
+                'dual cost','dual cost with running avg')
+
+
+% consMatr4print=reshape(consensus_error,Agni,maxIters);
+% for kk=11:Agni%works on single iteraction
+%     figure()
+%     consRow4print=consMatr4print(kk,:);
+%       semilogy(1:maxIters,consRow4print(1:maxIters), 'LineWidth',2);
+% %       hold on, grid on, zoom on
 %       xlabel('t')
 %       ylabel('consensus error')
-end
+% end
