@@ -13,7 +13,7 @@
 % results are outputted in form of .mat, .txt
 % plots in form of .fig, .jpg
 
-function mcT1fun(AgN_lib,Agni_diff,numRedo,dualsubIter,data_mainFolder)
+function mcT1fun(AgN_lib,Agni_lib,numRedo,dualsubIter,data_mainFolder)
 this_scriptName='mcT1fun';%mfilename
 %mfilename works only when running script in matlab command window
     
@@ -32,8 +32,8 @@ addpath(fullfile(fileparts(which(this_scriptName)),'/task1'));
 % AgN_lib=3:6;
 % agents dimension: relative to AgN (constraint by problem formulation)
 % Agnimin_diff=1;
-Agnimin_diff=Agni_diff(1);
-AgniMax_diff=Agni_diff(2);
+% Agnimin_diff=Agni_diff(1);
+% AgniMax_diff=Agni_diff(2);
 % AgniMax_diff=3;
 % stocasticity
 stocasticity_lib="doubly";%["row","doubly"];
@@ -47,9 +47,9 @@ graphProbability_lib=1;%0.1*(5:10);
 % numRedo=7;
 
 %total number of experiments
-experTot=length(AgN_lib)*length(stocasticity_lib)*...
-    (length(graphTopology_lib)-1+length(graphProbability_lib))*...
-        length(Agnimin_diff:AgniMax_diff)*numRedo;
+experTot=length(AgN_lib)*length(stocasticity_lib)*numRedo*...
+    (length(graphTopology_lib)-1+length(graphProbability_lib))...
+       *length(Agni_lib);
     
 % current experiment counter
 experCount=0;
@@ -80,7 +80,7 @@ logFile=data_mainFolder+"/log_monteCarlo.txt";
 
 % experiments iteration
 for AgN=AgN_lib
-for Agni=AgN+(Agnimin_diff:AgniMax_diff)
+for Agni=Agni_lib%AgN+(Agnimin_diff:AgniMax_diff)
 for stocasticity=stocasticity_lib
 for graphTopology=graphTopology_lib
     nobin_iter_count=0;%execution counter (see below)
@@ -161,44 +161,44 @@ for iterRedo=1:numRedo
         %NOTE .txt dimension may be to big to some readers, text rows
         %should be loaded progressively, not at once
 
-        writematrix('centralized cost',sol_filepath+".txt",'WriteMode','append');
-        writematrix(centr_cost,sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix("primal cost'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(primal_cost',sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix("primal RA'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(primal_cost_RA',sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix("dual cost'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(dual_cost',sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix("dual RA'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(dual_cost_RA',sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix('consensus error',sol_filepath+".txt",'WriteMode','append');
-        writematrix(consensus_error,sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix('ZZ',sol_filepath+".txt",'WriteMode','append');
-        writematrix(ZZ,sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix('ZZra',sol_filepath+".txt",'WriteMode','append');
-        writematrix(ZZRA,sol_filepath+".txt",'WriteMode','append');
-        writematrix('################',sol_filepath+".txt",'WriteMode','append');
-        writematrix("probdata: b'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.b' ,sol_filepath+".txt",'WriteMode','append');
-        writematrix('probdata:c',sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.c,sol_filepath+".txt",'WriteMode','append');
-        writematrix('probdata:d',sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.d,sol_filepath+".txt",'WriteMode','append');
-        writematrix('probdata:D',sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.D,sol_filepath+".txt",'WriteMode','append');
-        writematrix('probdata:H',sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.H,sol_filepath+".txt",'WriteMode','append');
-        writematrix("probdata: upper bound'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.UB',sol_filepath+".txt",'WriteMode','append');
-        writematrix("probdata: lower bound'",sol_filepath+".txt",'WriteMode','append');
-        writematrix(probdata.LB',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('centralized cost',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(centr_cost,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix("primal cost'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(primal_cost',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix("primal RA'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(primal_cost_RA',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix("dual cost'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(dual_cost',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix("dual RA'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(dual_cost_RA',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('consensus error',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(consensus_error,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('ZZ',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(ZZ,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix('ZZra',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(ZZRA,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('################',sol_filepath+".txt",'WriteMode','append');
+%         writematrix("probdata: b'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.b' ,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('probdata:c',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.c,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('probdata:d',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.d,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('probdata:D',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.D,sol_filepath+".txt",'WriteMode','append');
+%         writematrix('probdata:H',sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.H,sol_filepath+".txt",'WriteMode','append');
+%         writematrix("probdata: upper bound'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.UB',sol_filepath+".txt",'WriteMode','append');
+%         writematrix("probdata: lower bound'",sol_filepath+".txt",'WriteMode','append');
+%         writematrix(probdata.LB',sol_filepath+".txt",'WriteMode','append');
         
         
         % exporting cost difference plot as jpg and fig
@@ -227,8 +227,7 @@ for iterRedo=1:numRedo
         % consensus error plot
         consMatr4print=reshape(consensus_error,Agni,dualsubIter);
         consErr_plot=figure();
-        set(consErr_plot,'Visible','off');
-        for kk=1:Agni
+        for kk=1
             consRow4print=consMatr4print(kk,:);
             subplot(Agni,1,kk);
             plot(1:dualsubIter,consRow4print(1:dualsubIter), 'LineWidth',2);

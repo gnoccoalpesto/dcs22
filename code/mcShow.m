@@ -62,6 +62,7 @@ else
     repNumber=1;
 end
 
+repNumber=10;
 
 % retrieving number of dual subgradient iterations from a data field
 sampleLen=length(matFilesList);
@@ -139,7 +140,7 @@ clear fillCount mypat newName  runCounter% reduCounter
 
 
 % based on costant agents' dimension
-dimQuery="7";
+dimQuery="9";
 searchQuery="M"+dimQuery;%will search experiments with
 
 % figures for plotting dual/primal, running averages costs and consensus

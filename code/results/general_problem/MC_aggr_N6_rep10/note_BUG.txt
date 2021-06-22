@@ -1,0 +1,3 @@
+21/6/21
+
+BUG: legend creation, doesn't work when query is number of agents for consensus plot
