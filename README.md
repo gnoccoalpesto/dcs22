@@ -2,6 +2,17 @@
 
 distributed task assignment for robotic networks
 
+all scripts performing monte carlo operations (distinguishable by "MC" or "mc" in their name) could need attention since some variables are hardcoded inside them; prefer the *fun version when possible.
+
+Data saving is active (.txt saving not, since it creates files of 10MB order), pay attention that they create folder and may modify the environment they're runned into.
+
+The single shot version of the algorithms for both tasks (maindcs22.m and task2dcs22.m) can be runned without any worries.
+
+
+
+
+# THEORETICAL BASIS:
+
 # TASK 1
 
 1)N agents
@@ -67,18 +78,4 @@ Pi=
 
 Hi, b vector defined suitably
 1) Hi=I
-2) Hi=...?
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-xik=1 for one i, one k, which is the task k assigned eventually to agent i
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-(tasks assigned by evaluating ci vectors)
-
-
-ALGORITHM:
-1)spawn robots
-2) spawn task
-3) computation
-
-posiotions can be random, but solution must be unique
- (avoid rng(time) to have a nice solution)
